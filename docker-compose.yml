@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/user_db
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    restart: unless-stopped
+    networks:
+      - lectureai-network
+    entrypoint: >
+      sh -c "
+        echo 'Waiting for MongoDB to be ready...' &&
+        sleep 5 &&
+        uvicorn app:app --host 0.0.0.0 --port 8000"
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - lectureai-network
+    restart: unless-stopped
+
+networks:
+  lectureai-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local

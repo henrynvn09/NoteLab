@@ -10,6 +10,7 @@ from bson import ObjectId
 from typing import List, Optional
 
 # Config
+import os
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -33,7 +34,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = AsyncIOMotorClient("mongodb://localhost:27017")
+# Get MongoDB connection string from environment variable or use default
+mongo_uri = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(mongo_uri)
 db = client.user_db
 users_collection = db.users
 courses_collection = db.courses
