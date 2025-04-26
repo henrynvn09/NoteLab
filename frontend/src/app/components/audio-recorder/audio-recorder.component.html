@@ -14,20 +14,23 @@
             (pdfSelected)="onPdfSelected($event)">
           </app-pdf-viewer>
         </div>
-
+<!-- 
         <div class="recording-audio-wrapper">
           <app-recording-controls></app-recording-controls>
           <app-audio-playback 
             [audioURL]="audioURL" 
             (audioLoaded)="onAudioLoaded($event)">
           </app-audio-playback>
+        </div> -->
+        <div>
+          <app-chat-component></app-chat-component>
         </div>
       </div>
     </div>
 
     
     <!-- Notes Section (Right) -->
-         <div class="timestamped-notes-wrapper">
+    <div class="timestamped-notes-wrapper">
       <app-timestamped-notes [isRecording]="isRecording"></app-timestamped-notes>      
      </div>
   </div>
