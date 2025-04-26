@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 interface LoginData {
@@ -12,7 +12,7 @@ interface LoginData {
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginData: LoginData = {
     username: '',
     password: ''
@@ -20,12 +20,27 @@ export class LoginComponent {
   
   isSubmitting = false;
   errorMessage = '';
+  successMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    // Check if redirected after successful registration
+    this.route.queryParams.subscribe(params => {
+      if (params['registered'] === 'true') {
+        this.successMessage = 'Registration successful! Please login with your new account.';
+      }
+    });
+  }
 
   onLogin(): void {
     this.isSubmitting = true;
     this.errorMessage = '';
+    this.successMessage = '';
     
     this.authService.login(this.loginData)
       .subscribe({

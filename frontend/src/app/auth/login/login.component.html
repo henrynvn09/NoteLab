@@ -2,6 +2,10 @@
   <div class="auth-card">
     <h2>Login to LectureAI</h2>
     
+    <div class="success-message" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+    
     <form (ngSubmit)="onLogin()" #loginForm="ngForm">
       <div class="form-group">
         <label for="email">Email</label>
