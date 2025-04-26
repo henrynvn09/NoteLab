@@ -1,17 +1,25 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, HostListener } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  Input,
+  ViewChild,
+  ElementRef,
+  HostListener
+} from '@angular/core';
 import { NoteService } from '../../services/note.service';
-import { Editor, Toolbar } from 'ngx-editor';
+import { Editor, Toolbar, NgxEditorComponent } from 'ngx-editor';
 
 @Component({
   selector: 'app-timestamped-notes',
   templateUrl: './timestamped-notes.component.html',
   styleUrls: ['./timestamped-notes.component.scss']
 })
-export class TimestampedNotesComponent implements OnInit, OnDestroy {
-  @ViewChild('notesTextarea') notesTextarea!: ElementRef<HTMLTextAreaElement>;
-  @Input() isRecording: boolean = false;
-  
-  constructor(private noteService: NoteService) {}
+export class TimestampedNotesComponent implements OnInit, OnDestroy, AfterViewInit {
+  @Input() isRecording = false;
+  @ViewChild('ngxEditorComp') ngxEditorComp!: NgxEditorComponent;
+
   editor!: Editor;
   toolbar: Toolbar = [
     ['bold', 'italic'],
@@ -21,71 +29,62 @@ export class TimestampedNotesComponent implements OnInit, OnDestroy {
     [{ heading: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }],
     ['link', 'image'],
     ['text_color', 'background_color'],
-    ['align_left', 'align_center', 'align_right', 'align_justify'],
+    ['align_left', 'align_center', 'align_right', 'align_justify']
   ];
-  
+
+  constructor(private noteService: NoteService) {}
+
   ngOnInit(): void {
-    this.editor = new Editor({
-      keyboardShortcuts: true // Enable keyboard shortcuts
-    });
+    this.editor = new Editor({ keyboardShortcuts: true });
   }
-  
+
+  ngAfterViewInit(): void {
+    console.log('Editor is ready:', this.editor);
+  }
+
   ngOnDestroy(): void {
     this.editor.destroy();
   }
-  
-  // Add a host listener for keyboard shortcuts
-  @HostListener('document:keydown', ['$event'])
-  handleKeyboardShortcut(event: KeyboardEvent) {
-    const isMac = navigator.platform.toLowerCase().includes('mac');
-    const ctrlOrCmd = isMac ? event.metaKey : event.ctrlKey;
+@HostListener('document:keydown', ['$event'])
+handleKeyDown(event: KeyboardEvent) {
+  const activeElement = document.activeElement;
+  const isEditorFocused = activeElement?.classList.contains('NgxEditor__Content');
 
-    if (ctrlOrCmd && event.shiftKey && event.key === '8') {
-      event.preventDefault();
-      this.toggleBulletList();
-    }
+  if (!isEditorFocused) return;
+
+  const isMac = navigator.platform.toLowerCase().includes('mac');
+  const ctrlOrCmd = isMac ? event.metaKey : event.ctrlKey;
+
+  if (event.key === 'Tab') {
+    event.preventDefault();
+    this.editor.commands.insertText('    ').exec(); // 4 spaces
+    console.log('Inserted 4 spaces (Tab)');
+  } else if (event.key === 'Enter') {
+    event.preventDefault();
+    this.noteService.appendToCurrentNote('\n');
+    this.insertTimestamp();
+    console.log('Inserted timestamp (Enter)');
+  } else if (ctrlOrCmd && event.shiftKey && event.key === '8') {
+    event.preventDefault();
+    this.editor.commands.toggleBulletList().focus().exec();
+    console.log('Toggled bullet list (Cmd/Ctrl + Shift + 8)');
   }
+}
 
-  
+
   toggleBulletList() {
     this.editor.commands.toggleBulletList().focus().exec();
-    console.log('Bullet list toggled');
   }
 
-  
   get currentNote(): string {
     return this.noteService.getCurrentNote();
   }
-  
+
   set currentNote(value: string) {
     this.noteService.setCurrentNote(value);
   }
-  
-  onKeyDown(event: KeyboardEvent) {
-    // Insert timestamp on Enter key
-    if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent default to handle line breaks ourselves
-      
-      // Add a newline and timestamp
-      this.noteService.appendToCurrentNote('\n');
-      this.insertTimestamp();
-      
-      // Auto-scroll to bottom after adding a new line
-      setTimeout(() => this.scrollToBottom(), 0);
-    }
-  }
-  
-  // Auto-scroll to bottom of textarea
-  scrollToBottom(): void {
-    if (this.notesTextarea && this.notesTextarea.nativeElement) {
-      const textarea = this.notesTextarea.nativeElement;
-      textarea.scrollTop = textarea.scrollHeight;
-    }
-  }
-  
+
   insertTimestamp() {
     this.noteService.insertTimestamp(this.isRecording);
-    // Auto-scroll to bottom after adding timestamp
-    setTimeout(() => this.scrollToBottom(), 0);
   }
 }
