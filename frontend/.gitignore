@@ -63,3 +63,5 @@ debug.log
 
 # Local configuration
 config.local.json
+
+environment*

@@ -1,29 +1,16 @@
 <div class="pdf-viewer-container">
-  <div class="pdf-upload">
-    <label for="pdf-upload" class="upload-btn">Upload PDF</label>
-    <input 
-      type="file" 
-      id="pdf-upload" 
-      accept="application/pdf" 
-      (change)="onPdfSelected($event)"
-      style="display: none;">
-    <span *ngIf="pdfFileName" class="file-name">{{ pdfFileName }}</span>
-  </div>
-  
-  <!-- Enhanced PDF viewer with iframe fallback -->
-  <div class="pdf-viewer" *ngIf="pdfSrc">
-    <!-- Primary PDF viewer using iframe which has better browser support test -->
+  <div *ngIf="pdfSrc; else noPdfTemplate" class="pdf-viewer">
+    <!-- Primary PDF viewer using iframe -->
     <iframe 
       [src]="safeUrl" 
       width="100%" 
       height="600" 
       class="pdf-iframe"
-      *ngIf="safeUrl"
       (load)="updateSlideNumber(1)">
     </iframe>
     
     <!-- Manual slide number control -->
-    <div class="slide-controls" *ngIf="safeUrl">
+    <div class="slide-controls">
       <label for="slide-number">Current Slide: </label>
       <input 
         type="number" 
@@ -33,8 +20,8 @@
         (change)="updateSlideNumber(currentSlideNumber)" 
         class="slide-number-input">
     </div>
-    
-    <!-- Fallback in case iframe fails -->
+
+    <!-- Fallback if iframe fails -->
     <div class="pdf-fallback" *ngIf="!safeUrl">
       <p>Unable to display the PDF in browser. You can:</p>
       <div class="fallback-options">
@@ -43,8 +30,32 @@
       </div>
     </div>
   </div>
-  
-  <div class="no-pdf-message" *ngIf="!pdfSrc">
-    <p>No PDF loaded. Please upload a PDF file to view lecture materials.</p>
+
+  <!-- Template shown when no PDF is loaded -->
+  <ng-template #noPdfTemplate>
+   <div class="no-pdf-message">
+  <p>No PDF loaded. Please upload a PDF file to view lecture materials.</p>
+
+  <div class="pdf-upload">
+    <label for="pdf-upload" class="upload-btn">
+      <!-- Upload SVG Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" 
+           width="32" 
+           height="32" 
+           fill="currentColor" 
+           viewBox="0 0 24 24">
+        <path d="M12 2L6 8h4v6h4V8h4l-6-6zm-9 18h18v2H3v-2z"/>
+      </svg>
+    </label>
+    <input 
+      type="file" 
+      id="pdf-upload" 
+      accept="application/pdf" 
+      (change)="onPdfSelected($event)"
+      style="display: none;">
+    <div class="upload-text">Upload Slides</div>
   </div>
+</div>
+
+  </ng-template>
 </div>
