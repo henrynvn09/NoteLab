@@ -4,12 +4,14 @@ import { AudioRecorderComponent } from './components/audio-recorder/audio-record
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { authGuard } from './guards/auth.guard';
+import { ChatComponent } from './components/chat/chat.component';
 
 const routes: Routes = [
   { path: '', component: AudioRecorderComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: '**', redirectTo: '' }
+  { path: 'chat', component: ChatComponent },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

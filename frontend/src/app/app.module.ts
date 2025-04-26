@@ -14,6 +14,7 @@ import { NgxEditorModule } from 'ngx-editor';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { ChatComponent } from './components/chat/chat.component';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     AudioPlaybackComponent,
     TimestampedNotesComponent,
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    ChatComponent
   ],
   imports: [
     BrowserModule,
