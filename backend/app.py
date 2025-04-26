@@ -1,11 +1,13 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from pydantic import BaseModel, EmailStr
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, EmailStr, Field
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
+from typing import List, Optional
 
 # Config
 SECRET_KEY = "your_secret_key"
@@ -14,9 +16,28 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # App & Mongo setup
 app = FastAPI()
+
+# Configure CORS
+origins = [
+    "http://localhost:4200",  # Angular default
+    "http://localhost:8080",  # Alternative dev port
+    "http://127.0.0.1:4200",
+    "http://127.0.0.1:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 client = AsyncIOMotorClient("mongodb://localhost:27017")
 db = client.user_db
 users_collection = db.users
+courses_collection = db.courses
+lectures_collection = db.lectures
 
 # Security & Auth
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -37,6 +58,37 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+# Course and Lecture Models
+class CourseBase(BaseModel):
+    course_name: str
+
+class CourseCreate(CourseBase):
+    pass
+
+class CourseOut(CourseBase):
+    course_id: str
+
+class LectureBase(BaseModel):
+    lecture_name: str
+
+class LectureCreate(LectureBase):
+    pass
+
+class LectureOut(LectureBase):
+    lecture_id: str
+
+class LectureMaterial(BaseModel):
+    note: Optional[str] = ""
+    slides: Optional[str] = ""
+    recording: Optional[str] = ""
+    transcript: Optional[str] = ""
+
+class CourseList(BaseModel):
+    courses: List[CourseOut]
+
+class LectureList(BaseModel):
+    lectures: List[LectureOut]
+
 # Utils
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -52,6 +104,20 @@ def create_token(data: dict, expires_delta: timedelta = None):
 
 async def get_user_by_email(email: str):
     return await users_collection.find_one({"email": email})
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    user = await get_user_by_email(email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 # Routes
 @app.post("/register", response_model=UserOut)
@@ -107,3 +173,152 @@ async def me(token: str = Depends(oauth2_scheme)):
         "full_name": user["full_name"],
         "email": user["email"]
     }
+
+# Course and Lecture routes
+@app.get("/courses", response_model=CourseList)
+async def get_courses(current_user: dict = Depends(get_current_user)):
+    """
+    Get list of all courses with their IDs and names
+    """
+    cursor = courses_collection.find({})
+    courses = []
+    async for doc in cursor:
+        courses.append({"course_id": str(doc["_id"]), "course_name": doc["course_name"]})
+    return {"courses": courses}
+
+@app.post("/courses", status_code=201)
+async def create_course(course: CourseCreate, current_user: dict = Depends(get_current_user)):
+    """
+    Create a new course
+    """
+    course_data = course.dict()
+    result = await courses_collection.insert_one(course_data)
+    return {"course_id": str(result.inserted_id), "message": "Course created successfully"}
+
+@app.get("/courses/{course_id}", response_model=LectureList)
+async def get_course_lectures(course_id: str, current_user: dict = Depends(get_current_user)):
+    """
+    Get list of all lectures for a specific course
+    """
+    try:
+        course_oid = ObjectId(course_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid course ID")
+    
+    # Check if course exists
+    course = await courses_collection.find_one({"_id": course_oid})
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    
+    # Get lectures for this course
+    cursor = lectures_collection.find({"course_id": course_id})
+    lectures = []
+    async for doc in cursor:
+        lectures.append({
+            "lecture_id": str(doc["_id"]), 
+            "lecture_name": doc["lecture_name"]
+        })
+    
+    return {"lectures": lectures}
+
+@app.post("/courses/{course_id}")
+async def create_lecture(
+    course_id: str, 
+    lecture: LectureCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Create a new lecture for a specific course
+    """
+    try:
+        course_oid = ObjectId(course_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid course ID")
+    
+    # Check if course exists
+    course = await courses_collection.find_one({"_id": course_oid})
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    
+    # Create lecture
+    lecture_data = lecture.dict()
+    lecture_data["course_id"] = course_id
+    lecture_data["materials"] = {
+        "note": "",
+        "slides": "",
+        "recording": "",
+        "transcript": ""
+    }
+    
+    result = await lectures_collection.insert_one(lecture_data)
+    return {
+        "lecture_id": str(result.inserted_id), 
+        "message": "Lecture created successfully"
+    }
+
+@app.post("/courses/{course_id}/{lecture_id}")
+async def update_lecture_materials(
+    course_id: str, 
+    lecture_id: str, 
+    materials: LectureMaterial,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Update lecture materials (notes, slides, recording, transcript)
+    """
+    try:
+        lecture_oid = ObjectId(lecture_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid lecture ID")
+    
+    # Check if lecture exists and belongs to the specified course
+    lecture = await lectures_collection.find_one({
+        "_id": lecture_oid,
+        "course_id": course_id
+    })
+    
+    if not lecture:
+        raise HTTPException(status_code=404, detail="Lecture not found or doesn't belong to specified course")
+    
+    # Update the materials
+    update_result = await lectures_collection.update_one(
+        {"_id": lecture_oid},
+        {"$set": {"materials": materials.dict()}}
+    )
+    
+    if update_result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Failed to update lecture materials")
+    
+    return {"message": "Lecture materials updated successfully"}
+
+@app.get("/courses/{course_id}/{lecture_id}", response_model=LectureMaterial)
+async def get_lecture_materials(
+    course_id: str, 
+    lecture_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get lecture materials (notes, slides, recording, transcript)
+    """
+    try:
+        lecture_oid = ObjectId(lecture_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid lecture ID")
+    
+    # Check if lecture exists and belongs to the specified course
+    lecture = await lectures_collection.find_one({
+        "_id": lecture_oid,
+        "course_id": course_id
+    })
+    
+    if not lecture:
+        raise HTTPException(status_code=404, detail="Lecture not found or doesn't belong to specified course")
+    
+    # Return the materials
+    materials = lecture.get("materials", {})
+    return LectureMaterial(
+        note=materials.get("note", ""),
+        slides=materials.get("slides", ""),
+        recording=materials.get("recording", ""),
+        transcript=materials.get("transcript", "")
+    )
