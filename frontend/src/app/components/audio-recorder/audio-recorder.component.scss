@@ -10,8 +10,8 @@
 
   .pdf-center-wrapper {
     flex: 1;
-    display: flex;
-    justify-content: center; /* center the PDF */
+    // display: flex;
+    // justify-content: center; /* center the PDF */
     // align-items: center; /* optional if you want vertical centering too */
     overflow: hidden; /* optional if you want clean edges */
     box-sizing: border-box; /* so padding doesn't mess up flex */

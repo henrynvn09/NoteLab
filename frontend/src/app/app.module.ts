@@ -15,6 +15,7 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { ChatComponent } from './components/chat/chat.component';
+import { LeftNavbarComponent } from './components/LeftNavBar/left-navbar.component';
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import { ChatComponent } from './components/chat/chat.component';
     TimestampedNotesComponent,
     LoginComponent,
     RegisterComponent,
-    ChatComponent
+    ChatComponent,
+    LeftNavbarComponent
   ],
   imports: [
     BrowserModule,
