@@ -1,8 +1,5 @@
 <div class="notes-container">
   <h3>Timestamped Notes</h3>
-  <p class="hint">Press Enter to insert a timestamp</p>
-  <p class="hint">Press Tab for indentation (4 spaces)</p>
-  <p class="hint">Press Ctrl+Shift+8 to toggle bullet points</p>
 
   <div class="note-input">
     <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
@@ -12,4 +9,6 @@
       [(ngModel)]="currentNote"
     ></ngx-editor>
   </div>
+
+  <button (click)="downloadNote()">Download Notes</button>
 </div>

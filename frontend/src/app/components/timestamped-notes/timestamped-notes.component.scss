@@ -60,3 +60,44 @@ h3 {
   font-size: 0.95rem;
   line-height: 1.5;
 }
+.editor-with-timestamps {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-height: 300px;
+  overflow: hidden;
+}
+
+.timestamp-column {
+  width: 100px;
+  background-color: #f1f1f1;
+  padding: 0.5rem;
+  border-right: 1px solid #ccc;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.timestamp-button {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #eaeaea;
+  }
+}
+
+::ng-deep ngx-editor {
+  flex-grow: 1;
+  width: 100%;
+}

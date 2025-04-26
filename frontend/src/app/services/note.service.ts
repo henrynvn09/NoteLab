@@ -16,6 +16,8 @@ export class NoteService {
   private currentSlideNumber = 1;
   private pdfLoaded = false;
   private audioElement: HTMLAudioElement | null = null;
+  private firstTyped = false; // 🆕 Track if first typing happened
+
 
   constructor(private timerService: TimerService) { }
 
@@ -23,12 +25,16 @@ export class NoteService {
     this.audioElement = audio;
   }
 
-  setPdfStatus(isLoaded: boolean): void {
-    this.pdfLoaded = isLoaded;
+  getAudioElement(): HTMLAudioElement | null {
+    return this.audioElement;
   }
 
   setCurrentSlideNumber(slideNumber: number): void {
     this.currentSlideNumber = slideNumber;
+  }
+
+  setPdfStatus(isLoaded: boolean): void {
+    this.pdfLoaded = isLoaded;
   }
 
   getCurrentNote(): string {
@@ -49,6 +55,7 @@ export class NoteService {
 
   insertTimestamp(isRecording: boolean): void {
     if (this.audioElement && !isRecording) {
+      console.log('Inserting timestamp');
       const currentTime = Math.floor(this.audioElement.currentTime);
       const minutes = Math.floor(currentTime / 60);
       const seconds = currentTime % 60;
@@ -75,33 +82,38 @@ export class NoteService {
       this.currentNote += timestamp;
     }
   }
-
-  saveNote(isRecording: boolean): void {
-    if (this.currentNote.trim()) {
-      const currentTimestamp = isRecording 
-        ? this.timerService.getCurrentSeconds()
-        : (this.audioElement ? Math.floor(this.audioElement.currentTime) : 0);
-      
-      // Create note, only include slide number if a PDF is uploaded
-      const note: TimestampedNote = {
-        timestamp: currentTimestamp,
-        text: this.currentNote.trim(),
-        slideNumber: this.pdfLoaded ? this.currentSlideNumber : 0 // Use 0 as default when no PDF
-      };
-      
-      this.notes.push(note);
-      this.currentNote = '';
-    }
+  
+  // Handle newlines and add timestamps at the end of each line
+  handleNewline(isRecording: boolean): void {
+    // Add a newline character
+    this.currentNote += '\n';
+    
+    // Insert timestamp after the newline
+    this.insertTimestamp(isRecording);
   }
 
-  formatTimestamp(timestamp: number): string {
+  sasaveNote(isRecording: boolean): void {
+  if (this.currentNote.trim()) {
+    const currentTimestamp = isRecording 
+      ? this.timerService.getCurrentSeconds()
+      : (this.audioElement ? Math.floor(this.audioElement.currentTime) : 0);
+
+    const note: TimestampedNote = {
+      timestamp: currentTimestamp,
+      text: this.currentNote.trim(),
+      slideNumber: this.pdfLoaded ? this.currentSlideNumber : 0
+    };
+
+    this.notes.push(note);
+    this.currentNote = '';
+    this.firstTyped = false; // 🆕 Reset for next note
+  }
+}
+formatTimestamp(timestamp: number): string {
     let formattedTime = this.timerService.formatTimestamp(timestamp);
-    
-    // Only include slide number if a PDF is uploaded
     if (this.pdfLoaded) {
       formattedTime += ` | Slide ${this.notes.find(note => note.timestamp === timestamp)?.slideNumber || this.currentSlideNumber}`;
     }
-    
     return formattedTime;
   }
 }

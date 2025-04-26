@@ -5,11 +5,12 @@ import {
   AfterViewInit,
   Input,
   ViewChild,
-  ElementRef,
-  HostListener
+  HostListener,
+  Injector
 } from '@angular/core';
 import { NoteService } from '../../services/note.service';
 import { Editor, Toolbar, NgxEditorComponent } from 'ngx-editor';
+import { TimerService } from '../../services/timer.service';
 
 @Component({
   selector: 'app-timestamped-notes',
@@ -32,48 +33,64 @@ export class TimestampedNotesComponent implements OnInit, OnDestroy, AfterViewIn
     ['align_left', 'align_center', 'align_right', 'align_justify']
   ];
 
-  constructor(private noteService: NoteService) {}
+  private timerService: TimerService;
+
+  constructor(
+    private noteService: NoteService,
+    private injector: Injector
+  ) {
+    this.timerService = this.injector.get(TimerService);
+  }
 
   ngOnInit(): void {
     this.editor = new Editor({ keyboardShortcuts: true });
   }
 
   ngAfterViewInit(): void {
-    console.log('Editor is ready:', this.editor);
+    console.log('Editor ready:', this.editor);
   }
 
   ngOnDestroy(): void {
     this.editor.destroy();
   }
-@HostListener('document:keydown', ['$event'])
-handleKeyDown(event: KeyboardEvent) {
-  const activeElement = document.activeElement;
-  const isEditorFocused = activeElement?.classList.contains('NgxEditor__Content');
 
-  if (!isEditorFocused) return;
+  @HostListener('document:keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    const activeElement = document.activeElement;
+    const isEditorFocused = activeElement?.classList.contains('NgxEditor__Content');
 
-  const isMac = navigator.platform.toLowerCase().includes('mac');
-  const ctrlOrCmd = isMac ? event.metaKey : event.ctrlKey;
+    if (!isEditorFocused) return;
 
-  if (event.key === 'Tab') {
-    event.preventDefault();
-    this.editor.commands.insertText('    ').exec(); // 4 spaces
-    console.log('Inserted 4 spaces (Tab)');
-  } else if (event.key === 'Enter') {
-    event.preventDefault();
-    this.noteService.appendToCurrentNote('\n');
-    this.insertTimestamp();
-    console.log('Inserted timestamp (Enter)');
-  } else if (ctrlOrCmd && event.shiftKey && event.key === '8') {
-    event.preventDefault();
-    this.editor.commands.toggleBulletList().focus().exec();
-    console.log('Toggled bullet list (Cmd/Ctrl + Shift + 8)');
-  }
-}
+    const isMac = navigator.platform.toLowerCase().includes('mac');
+    const ctrlOrCmd = isMac ? event.metaKey : event.ctrlKey;
 
-
-  toggleBulletList() {
-    this.editor.commands.toggleBulletList().focus().exec();
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      this.editor.commands.insertText('          ').exec();
+      console.log('Inserted 4 spaces (Tab)');
+    } else if (event.key === 'Enter') {
+      // Prevent default behavior to handle it ourselves
+      event.preventDefault();
+      
+      // Get the timestamp first
+      const timestamp = this.getCurrentFormattedTimestamp();
+      
+      // Insert a newline and then the timestamp
+      this.editor.commands.insertText(timestamp).exec();
+      
+      // Make sure editor stays focused
+      setTimeout(() => {
+        const editorElement = document.querySelector('.NgxEditor__Content');
+        if (editorElement) {
+          (editorElement as HTMLElement).focus();
+        }
+        console.log('Inserted newline with timestamp');
+      }, 100);
+    } else if (ctrlOrCmd && event.shiftKey && event.key === '8') {
+      event.preventDefault();
+      this.editor.commands.toggleBulletList().focus().exec();
+      console.log('Toggled bullet list');
+    }
   }
 
   get currentNote(): string {
@@ -83,8 +100,45 @@ handleKeyDown(event: KeyboardEvent) {
   set currentNote(value: string) {
     this.noteService.setCurrentNote(value);
   }
+  
+  getCurrentFormattedTimestamp(): string {
+    // Get the current time from either the audio player or recording timer
+    let timestamp = 0;
+    const audioElement = this.noteService.getAudioElement();
+    
+    if (audioElement) {
+      timestamp = audioElement.currentTime;
+    } else if (this.isRecording) {
+      timestamp = this.timerService.getCurrentSeconds();
+    }
+    
+    const minutes = Math.floor(timestamp / 60);
+    const seconds = Math.floor(timestamp % 60);
+    let formattedTime = `[${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Try to determine if PDF is loaded by checking the note service
+    try {
+      // Access private field using indexer notation as a workaround
+      const pdfLoaded = (this.noteService as any).pdfLoaded;
+      if (pdfLoaded) {
+        const slideNumber = (this.noteService as any).currentSlideNumber;
+        formattedTime += ` | Slide ${slideNumber}`;
+      }
+    } catch (e) {
+      // If we can't access it, just use the basic format
+    }
+    
+    formattedTime += `] `;
+    return formattedTime;
+  }
 
-  insertTimestamp() {
-    this.noteService.insertTimestamp(this.isRecording);
+  downloadNote() {
+    const blob = new Blob([this.currentNote], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'timestamped_notes.html';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

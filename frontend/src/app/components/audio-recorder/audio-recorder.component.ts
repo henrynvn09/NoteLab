@@ -58,20 +58,6 @@ export class AudioRecorderComponent implements OnDestroy {
     this.noteService.setPdfStatus(true);
   }
 
-  onKeyDown(event: KeyboardEvent) {
-    // Insert timestamp on Enter key
-    if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent default to handle line breaks ourselves
-      
-      // Add a newline and timestamp
-      this.noteService.appendToCurrentNote('\n');
-      this.insertTimestamp();
-      
-      // Auto-scroll to bottom after adding a new line
-      setTimeout(() => this.scrollToBottom(), 0);
-    }
-  }
-
   // Auto-scroll to bottom of textarea
   scrollToBottom(): void {
     if (this.notesTextarea && this.notesTextarea.nativeElement) {
