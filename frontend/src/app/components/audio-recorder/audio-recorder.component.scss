@@ -1,311 +1,33 @@
 .audio-recorder-container {
-  max-width: 1200px; // Increased width to accommodate side-by-side layout
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
   
-  h2 {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #333;
-  }
-  
-  .recording-controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 30px;
-    
-    .timer {
-      font-size: 32px;
-      font-weight: bold;
-      margin-bottom: 20px;
-      font-family: monospace;
-    }
-    
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      
-      .record-btn {
-        padding: 12px 24px;
-        border-radius: 50px;
-        border: none;
-        background-color: #f44336;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        
-        &:hover {
-          background-color: darken(#f44336, 10%);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        
-        &.active {
-          background-color: #4CAF50;
-          animation: pulse 2s infinite;
-          
-          &:hover {
-            background-color: darken(#4CAF50, 10%);
-          }
-        }
-      }
-
-      .pause-btn {
-        padding: 12px 24px;
-        border-radius: 50px;
-        border: none;
-        background-color: #2196F3;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        min-width: 120px;
-        
-        &:hover {
-          background-color: darken(#2196F3, 10%);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        
-        &:disabled {
-          background-color: #e0e0e0;
-          color: #b0b0b0;
-          cursor: not-allowed;
-          box-shadow: none;
-        }
-        
-        &.active {
-          background-color: #4CAF50;
-          animation: pulse 2s infinite;
-          
-          &:hover {
-            background-color: darken(#4CAF50, 10%);
-          }
-        }
-      }
-      
-      .stop-btn {
-        padding: 12px 24px;
-        border-radius: 50px;
-        border: none;
-        background-color: #f44336;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        min-width: 120px;
-        
-        &:hover {
-          background-color: darken(#f44336, 10%);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-      }
-    }
-    
-    .audio-player {
-      width: 100%;
-      margin-top: 20px;
-      
-      audio {
-        width: 100%;
-        border-radius: 4px;
-      }
-    }
-  }
-  
-  // New side-by-side layout container
   .content-container {
     display: flex;
-    gap: 30px;
-    
-    // PDF Section (Left)
-    .pdf-section {
-      flex: 1;
-      min-width: 0; // Allow flex to shrink below content size
-      border-radius: 8px;
-      background-color: #f9f9f9;
-      padding: 15px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      
-      .pdf-upload {
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        
-        .upload-btn {
-          padding: 10px 20px;
-          background-color: #2196F3;
-          color: white;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-          
-          &:hover {
-            background-color: darken(#2196F3, 10%);
-          }
-        }
-        
-        .file-name {
-          margin-left: 15px;
-          font-size: 14px;
-          color: #666;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          max-width: 200px;
-        }
-      }
-      
-      .pdf-viewer {
-        height: 600px;
-        overflow: hidden;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #fff;
-        
-        .pdf-iframe {
-          border: none;
-          width: 100%;
-          height: 100%;
-        }
-        
-        .pdf-fallback {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          height: 100%;
-          padding: 20px;
-          text-align: center;
-          
-          p {
-            margin-bottom: 20px;
-            color: #666;
-          }
-          
-          .fallback-options {
-            display: flex;
-            gap: 15px;
-            
-            .fallback-btn {
-              padding: 10px 20px;
-              background-color: #2196F3;
-              color: white;
-              border-radius: 5px;
-              cursor: pointer;
-              text-decoration: none;
-              font-size: 14px;
-              border: none;
-              transition: background-color 0.3s ease;
-              
-              &:hover {
-                background-color: darken(#2196F3, 10%);
-              }
-            }
-          }
-        }
-      }
-      
-      .no-pdf-message {
-        height: 600px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        color: #888;
-        font-style: italic;
-        border: 2px dashed #ddd;
-        border-radius: 5px;
-        background-color: #f5f5f5;
-        
-        p {
-          max-width: 80%;
-          line-height: 1.6;
-        }
-      }
-    }
-    
-    // Notes Section (Right)
-    .notes-container {
-      flex: 1;
-      min-width: 0; // Allow flex to shrink below content size
-      
-      h3 {
-        margin-bottom: 10px;
-      }
-      
-      .hint {
-        margin-bottom: 15px;
-        color: #666;
-        font-size: 14px;
-        font-style: italic;
-      }
-      
-      .note-input {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 20px;
-        height: 100%;
-        
-        .notes-textarea {
-          width: 100%;
-          padding: 15px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          font-family: monospace;
-          font-size: 14px;
-          line-height: 1.6;
-          resize: vertical;
-          margin-bottom: 10px;
-          
-          &:focus {
-            outline: none;
-            border-color: #2196F3;
-            box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
-          }
-          
-          &.full-height {
-            height: 500px; // Make the textarea much taller to accommodate all notes
-            overflow-y: auto;
-          }
-        }
-        
-        // Remove save-note-btn styles since we don't need that button anymore
-      }
-      
-      // Remove .saved-notes section styles since we're not using them anymore
-    }
+    height: 93vh; /* or whatever height you want */
+    width: 100%;
+    border: 2px dashed red;
+    position: relative; /* Make positioning easier */
   }
-}
 
-// Make the layout responsive
-@media (max-width: 992px) {
-  .audio-recorder-container {
-    .content-container {
-      flex-direction: column;
-      
-      .pdf-section,
-      .notes-container {
-        width: 100%;
-      }
-    }
+  .pdf-center-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* center the PDF */
+    // align-items: center; /* optional if you want vertical centering too */
+    overflow: hidden; /* optional if you want clean edges */
+    box-sizing: border-box; /* so padding doesn't mess up flex */
   }
-}
 
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  .timestamped-notes-section {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 500px;
+    height: 100%;
+    background-color: #f9f9f9; /* optional: make it different color */
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1); /* optional: subtle shadow */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
   }
 }

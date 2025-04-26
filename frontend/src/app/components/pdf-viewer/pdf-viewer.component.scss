@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
   
   .pdf-upload {
     margin-bottom: 10px;
@@ -32,10 +33,14 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     overflow: hidden;
+    width: 100%; /* ✅ Add this! */
     
     iframe.pdf-iframe {
       border: none;
       box-shadow: none;
+      width: 700px;
+      object-fit: contain; /* optional: scale nicely inside */
+
     }
     
     .slide-controls {

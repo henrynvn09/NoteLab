@@ -1,25 +1,34 @@
 <div class="audio-recorder-container">
   <!-- Recording Controls Component -->
-  <app-recording-controls></app-recording-controls>
-  
-  <!-- Audio Playback Component -->
-  <app-audio-playback 
-    [audioURL]="audioURL" 
-    (audioLoaded)="onAudioLoaded($event)">
-  </app-audio-playback>
+
   
   <div class="content-container">
     <!-- PDF Viewer Section (Left) -->
-    <div class="pdf-section">
-      <app-pdf-viewer 
-        [pdfSrc]="pdfSrc"
-        [pdfFileName]="pdfFileName"
-        (slideNumberChange)="onSlideNumberChange($event)"
-        (pdfSelected)="onPdfSelected($event)">
-      </app-pdf-viewer>
+    <div class="pdf-center-wrapper">
+      <div class="pdf-and-controls-wrapper">
+        <div class="pdf-viewer-wrapper">
+          <app-pdf-viewer 
+            [pdfSrc]="pdfSrc"
+            [pdfFileName]="pdfFileName"
+            (slideNumberChange)="onSlideNumberChange($event)"
+            (pdfSelected)="onPdfSelected($event)">
+          </app-pdf-viewer>
+        </div>
+
+        <div class="recording-audio-wrapper">
+          <app-recording-controls></app-recording-controls>
+          <app-audio-playback 
+            [audioURL]="audioURL" 
+            (audioLoaded)="onAudioLoaded($event)">
+          </app-audio-playback>
+        </div>
+      </div>
     </div>
+
     
     <!-- Notes Section (Right) -->
-    <app-timestamped-notes [isRecording]="isRecording"></app-timestamped-notes>
+         <div class="timestamped-notes-wrapper">
+      <app-timestamped-notes [isRecording]="isRecording"></app-timestamped-notes>      
+     </div>
   </div>
 </div>
