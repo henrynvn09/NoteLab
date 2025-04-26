@@ -10,6 +10,7 @@ from bson import ObjectId
 from typing import List, Optional
 
 # Config
+import os
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -33,7 +34,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = AsyncIOMotorClient("mongodb://localhost:27017")
+# Get MongoDB connection string from environment variable or use default
+mongo_uri = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(mongo_uri)
 db = client.user_db
 users_collection = db.users
 courses_collection = db.courses
@@ -77,11 +80,18 @@ class LectureCreate(LectureBase):
 class LectureOut(LectureBase):
     lecture_id: str
 
+class NoteCreate(BaseModel):
+    title: str
+    user_note: str = ""
+    recording: str = ""
+    transcript: str = ""
+
 class LectureMaterial(BaseModel):
     note: Optional[str] = ""
     slides: Optional[str] = ""
     recording: Optional[str] = ""
     transcript: Optional[str] = ""
+    ai_note: Optional[str] = ""
 
 class CourseList(BaseModel):
     courses: List[CourseOut]
@@ -222,13 +232,14 @@ async def get_course_lectures(course_id: str, current_user: dict = Depends(get_c
     return {"lectures": lectures}
 
 @app.post("/courses/{course_id}")
-async def create_lecture(
-    course_id: str, 
-    lecture: LectureCreate,
+async def create_note(
+    course_id: str,
+    note: NoteCreate,
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Create a new lecture for a specific course
+    Create a new note entry for a course with title, user_note, recording and transcript
+    Returns the lecture_id of the newly created entry
     """
     try:
         course_oid = ObjectId(course_id)
@@ -240,20 +251,21 @@ async def create_lecture(
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     
-    # Create lecture
-    lecture_data = lecture.dict()
-    lecture_data["course_id"] = course_id
-    lecture_data["materials"] = {
-        "note": "",
-        "slides": "",
-        "recording": "",
-        "transcript": ""
+    # Create lecture entry with the note content
+    lecture_data = {
+        "lecture_name": note.title,
+        "course_id": course_id,
+        "materials": {
+            "note": note.user_note,
+            "recording": note.recording,
+            "transcript": note.transcript,
+            "slides": ""
+        }
     }
     
     result = await lectures_collection.insert_one(lecture_data)
     return {
-        "lecture_id": str(result.inserted_id), 
-        "message": "Lecture created successfully"
+        "lecture_id": str(result.inserted_id)
     }
 
 @app.post("/courses/{course_id}/{lecture_id}")
@@ -320,5 +332,6 @@ async def get_lecture_materials(
         note=materials.get("note", ""),
         slides=materials.get("slides", ""),
         recording=materials.get("recording", ""),
-        transcript=materials.get("transcript", "")
+        transcript=materials.get("transcript", ""),
+        ai_note=materials.get("ai_note", "")
     )
