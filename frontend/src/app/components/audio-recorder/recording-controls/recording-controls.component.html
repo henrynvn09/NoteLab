@@ -1,0 +1,26 @@
+<div class="recording-controls">
+  <div class="timer">{{ getCurrentTimestamp() }}</div>
+  
+  <div class="buttons">
+    <button 
+      class="record-btn" 
+      [class.active]="isRecording && !isPaused" 
+      (click)="!isRecording ? startRecording() : togglePauseResume()"
+      *ngIf="!isRecording || (isRecording && !isPaused)">
+      {{ !isRecording ? 'Start Recording' : 'Pause' }}
+    </button>
+    <button
+      class="pause-btn"
+      [class.active]="isPaused"
+      (click)="togglePauseResume()"
+      *ngIf="isRecording && isPaused">
+      Resume
+    </button>
+    <button
+      class="stop-btn"
+      (click)="stopRecording()"
+      *ngIf="isRecording && isPaused">
+      Stop
+    </button>
+  </div>
+</div>

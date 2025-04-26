@@ -1,0 +1,50 @@
+<div class="pdf-viewer-container">
+  <div class="pdf-upload">
+    <label for="pdf-upload" class="upload-btn">Upload PDF</label>
+    <input 
+      type="file" 
+      id="pdf-upload" 
+      accept="application/pdf" 
+      (change)="onPdfSelected($event)"
+      style="display: none;">
+    <span *ngIf="pdfFileName" class="file-name">{{ pdfFileName }}</span>
+  </div>
+  
+  <!-- Enhanced PDF viewer with iframe fallback -->
+  <div class="pdf-viewer" *ngIf="pdfSrc">
+    <!-- Primary PDF viewer using iframe which has better browser support test -->
+    <iframe 
+      [src]="safeUrl" 
+      width="100%" 
+      height="600" 
+      class="pdf-iframe"
+      *ngIf="safeUrl"
+      (load)="updateSlideNumber(1)">
+    </iframe>
+    
+    <!-- Manual slide number control -->
+    <div class="slide-controls" *ngIf="safeUrl">
+      <label for="slide-number">Current Slide: </label>
+      <input 
+        type="number" 
+        id="slide-number" 
+        [(ngModel)]="currentSlideNumber" 
+        min="1"
+        (change)="updateSlideNumber(currentSlideNumber)" 
+        class="slide-number-input">
+    </div>
+    
+    <!-- Fallback in case iframe fails -->
+    <div class="pdf-fallback" *ngIf="!safeUrl">
+      <p>Unable to display the PDF in browser. You can:</p>
+      <div class="fallback-options">
+        <a [href]="pdfSrc" download class="fallback-btn">Download PDF</a>
+        <button (click)="openInNewTab()" class="fallback-btn">Open in New Tab</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="no-pdf-message" *ngIf="!pdfSrc">
+    <p>No PDF loaded. Please upload a PDF file to view lecture materials.</p>
+  </div>
+</div>

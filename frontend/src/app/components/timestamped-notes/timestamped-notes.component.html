@@ -1,0 +1,14 @@
+<div class="notes-container">
+  <h3>Timestamped Notes</h3>
+  <p class="hint">Press Enter to automatically insert a timestamp with slide number at the current position</p>
+  <p class="hint">Press Ctrl+Shift+8 to toggle bullet points</p>
+  
+  <div class="note-input">
+    <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
+    <ngx-editor 
+      [editor]="editor" 
+      [(ngModel)]="currentNote"
+    >
+    </ngx-editor>
+  </div>
+</div>

@@ -1,0 +1,54 @@
+.recording-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  .timer {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  
+  .buttons {
+    display: flex;
+    gap: 10px;
+    
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &.record-btn {
+        background-color: #f44336;
+        color: white;
+        
+        &.active {
+          background-color: #d32f2f;
+        }
+      }
+      
+      &.pause-btn {
+        background-color: #2196f3;
+        color: white;
+        
+        &.active {
+          background-color: #1976d2;
+        }
+      }
+      
+      &.stop-btn {
+        background-color: #9e9e9e;
+        color: white;
+      }
+      
+      &:hover {
+        opacity: 0.9;
+        transform: scale(1.05);
+      }
+    }
+  }
+}

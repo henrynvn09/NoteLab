@@ -1,0 +1,65 @@
+# Angular build output
+/dist
+/.angular
+/tmp
+/out-tsc
+/bazel-out
+
+# Node.js dependencies
+/node_modules
+/npm-debug.log
+/yarn-error.log
+/yarn-debug.log
+
+# Compiled output
+*.js
+*.js.map
+*.d.ts
+
+# IDE files
+.idea/
+.vscode/
+.project
+.classpath
+*.launch
+.settings/
+*.sublime-workspace
+
+# Misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+/typings
+testem.log
+
+# Environment files
+/src/environments/*.js
+/src/environments/*.js.map
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Test reports
+/reports
+/karma-results.json
+
+# e2e
+/e2e/*.js
+/e2e/*.map
+
+# Angular cache
+.angular/cache/
+.nx/cache/
+
+# Debug files
+debug.log
+
+# Local configuration
+config.local.json

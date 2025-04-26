@@ -1,0 +1,86 @@
+.pdf-viewer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  .pdf-upload {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    
+    .upload-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+      
+      &:hover {
+        background-color: #e0e0e0;
+      }
+    }
+    
+    .file-name {
+      color: #666;
+      font-size: 0.9em;
+    }
+  }
+  
+  .pdf-viewer {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    
+    iframe.pdf-iframe {
+      border: none;
+      box-shadow: none;
+    }
+    
+    .slide-controls {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      background-color: #f5f5f5;
+      
+      .slide-number-input {
+        width: 50px;
+        padding: 4px;
+        margin-left: 8px;
+      }
+    }
+  }
+  
+  .pdf-fallback {
+    padding: 20px;
+    text-align: center;
+    
+    .fallback-options {
+      margin-top: 10px;
+      
+      .fallback-btn {
+        margin: 0 5px;
+        padding: 8px 16px;
+        background-color: #f0f0f0;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #333;
+        cursor: pointer;
+        
+        &:hover {
+          background-color: #e0e0e0;
+        }
+      }
+    }
+  }
+  
+  .no-pdf-message {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+  }
+}
