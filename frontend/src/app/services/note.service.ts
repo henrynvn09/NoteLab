@@ -92,7 +92,7 @@ export class NoteService {
     this.insertTimestamp(isRecording);
   }
 
-  sasaveNote(isRecording: boolean): void {
+  saveNote(isRecording: boolean): void {
   if (this.currentNote.trim()) {
     const currentTimestamp = isRecording 
       ? this.timerService.getCurrentSeconds()
