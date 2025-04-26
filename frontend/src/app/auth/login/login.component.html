@@ -1,0 +1,53 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Login to LectureAI</h2>
+    
+    <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email"
+          [(ngModel)]="loginData.username"
+          #email="ngModel"
+          required
+          email
+          placeholder="Enter your email">
+        <div class="error-message" *ngIf="email.invalid && (email.dirty || email.touched)">
+          <span *ngIf="email.errors?.['required']">Email is required.</span>
+          <span *ngIf="email.errors?.['email']">Please enter a valid email.</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password"
+          [(ngModel)]="loginData.password"
+          #password="ngModel"
+          required
+          placeholder="Enter your password">
+        <div class="error-message" *ngIf="password.invalid && (password.dirty || password.touched)">
+          <span *ngIf="password.errors?.['required']">Password is required.</span>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" [disabled]="loginForm.invalid || isSubmitting">
+          {{ isSubmitting ? 'Logging in...' : 'Login' }}
+        </button>
+      </div>
+      
+      <div class="error-message auth-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+    </form>
+    
+    <div class="auth-links">
+      <p>Don't have an account? <a routerLink="/register">Register here</a></p>
+    </div>
+  </div>
+</div>
