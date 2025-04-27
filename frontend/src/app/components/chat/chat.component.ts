@@ -5,11 +5,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { LectureDataService, LectureUpdateResponse } from '../../services/lecture-data.service';
+import { PdfStateService } from 'src/app/services/pdf-state.service';
 
 interface TranscriptEntry {
   text: string;
   start: number;
   end: number;
+}
+
+interface PdfData {
+  blob: Blob;
+  fileName: string;
+  url: string;
 }
 
 @Component({
@@ -36,13 +43,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   courseId: string | null = null;
   courseName: string | null = null;
   lectureId: string | null = null;
+
+  // PDF data
+  pdfData: PdfData | null = null;
   
   constructor(
     private voiceService: VoiceRecognitionService,
     private route: ActivatedRoute,
     private http: HttpClient,
     private lectureDataService: LectureDataService,
-    private router: Router
+    private router: Router,
+    private pdfStateService: PdfStateService // Add this
   ) {}
 
   ngOnInit(): void {
@@ -137,6 +148,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.isPaused = false;
   }
 
+  // Handler for PDF selection
+  onPdfSelected(pdfData: {file: File, url: string}): void {
+    this.pdfData = {
+      blob: pdfData.file,
+      fileName: pdfData.file.name,
+      url: pdfData.url
+    };
+    console.log('PDF selected in chat component:', this.pdfData.fileName);
+  }
+
   // New methods for Submit and Start Over buttons
   // Submit transcript and lecture materials to the server
   async submitTranscript(): Promise<void> {
@@ -152,15 +173,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       // Add audio recording if available
       if (audioData && audioData.blob) {
         const fileName = `lecture_${this.courseId || 'unknown'}_${Date.now()}.webm`;
-        formData.append('audio', audioData.blob, fileName);
+        formData.append('audio', fileName);
         console.log('Adding audio recording to request:', fileName);
       }
       
-      // Add PDF if available (assuming there's a PDF property in the component)
-      if ((this as any).pdfData && (this as any).pdfData.blob) {
-        const pdfFileName = `lecture_${this.courseId || 'unknown'}_slides_${Date.now()}.pdf`;
-        formData.append('slides', (this as any).pdfData.blob, pdfFileName);
-        console.log('Adding slides to request:', pdfFileName);
+      const pdfResponseData = this.pdfStateService.getPdfResponse();
+      // Add PDF if available
+      if (pdfResponseData) {
+        const pdfPath = pdfResponseData?.response?.slides || '';
+        formData.append('slides', pdfPath);
+        console.log('Adding PDF to request:', pdfPath);
       }
       
       // Add transcript and metadata
@@ -172,54 +194,54 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       if (this.courseId) formData.append('courseId', this.courseId);
       if (this.lectureId) formData.append('lectureId', this.lectureId);
       
-      console.log('Sending lecture data to backend for processing and saving');
+      console.log('Sending lecture data to backend for processing and saving', formData);
       
-      // API base URL - In production you should use environment configuration
-      const apiBaseUrl = 'http://localhost:8000';
+      // // API base URL - In production you should use environment configuration
+      // const apiBaseUrl = 'http://localhost:8000';
       
-      // Send to backend API endpoint
-      const response = await firstValueFrom(
-        this.http.post<{
-          filePaths: { audio?: string; slides?: string },
-          response: LectureUpdateResponse
-        }>(
-          `${apiBaseUrl}/api/lectures/save`,
-          formData
-        )
-      );
+      // // Send to backend API endpoint
+      // const response = await firstValueFrom(
+      //   this.http.post<{
+      //     filePaths: { audio?: string; slides?: string },
+      //     response: LectureUpdateResponse
+      //   }>(
+      //     `${apiBaseUrl}/api/lectures/save`,
+      //     formData
+      //   )
+      // );
       
-      console.log('Received response from backend:', response);
+      // console.log('Received response from backend:', response);
       
-      if (!response || !response.response) {
-        throw new Error('Invalid response format from server');
-      }
+      // if (!response || !response.response) {
+      //   throw new Error('Invalid response format from server');
+      // }
       
-      // Create a full URL for the files using the base URL
-      const baseUrl = apiBaseUrl;
-      const audioUrl = response.filePaths?.audio ? 
-          `${baseUrl}${response.response.recording}` : '';
-      const slidesUrl = response.filePaths?.slides ? 
-          `${baseUrl}${response.response.slides}` : '';
+      // // Create a full URL for the files using the base URL
+      // const baseUrl = apiBaseUrl;
+      // const audioUrl = response.filePaths?.audio ? 
+      //     `${baseUrl}${response.response.recording}` : '';
+      // const slidesUrl = response.filePaths?.slides ? 
+      //     `${baseUrl}${response.response.slides}` : '';
       
-      console.log('Files accessible at:', {
-        audio: audioUrl,
-        slides: slidesUrl
-      });
+      // console.log('Files accessible at:', {
+      //   audio: audioUrl,
+      //   slides: slidesUrl
+      // });
       
-      // Process the lecture data for the frontend
-      const lectureResponse: LectureUpdateResponse = {
-        note: response.response.note || "",
-        slides: slidesUrl,
-        recording: audioUrl,
-        transcript: this.chatLog.join('\n'),
-        ai_note: response.response.ai_note || ""
-      };
+      // // Process the lecture data for the frontend
+      // const lectureResponse: LectureUpdateResponse = {
+      //   note: response.response.note || "",
+      //   slides: slidesUrl,
+      //   recording: audioUrl,
+      //   transcript: this.chatLog.join('\n'),
+      //   ai_note: response.response.ai_note || ""
+      // };
       
-      // Handle the lecture response
-      this.handleLectureResponse(lectureResponse);
+      // // Handle the lecture response
+      // this.handleLectureResponse(lectureResponse);
       
-      // Keep the isStoppedState true to continue showing the submit/start over buttons
-      this.isStoppedState = true;
+      // // Keep the isStoppedState true to continue showing the submit/start over buttons
+      // this.isStoppedState = true;
       
     } catch (error) {
       console.error('Error submitting lecture materials:', error);
@@ -244,6 +266,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.chatLog = [];
     this.transcriptEntries = [];
     this.liveTranscript = '';
+    this.pdfData = null; // Also clear the PDF data
   }
 
   ngOnDestroy(): void {
