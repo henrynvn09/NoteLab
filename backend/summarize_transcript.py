@@ -56,40 +56,6 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
         <h2>[hh:mm:ss] SUBJECT SUBHEADING N</h2>
     """
     
-    user_note_prompt = """
-        You are a student organizing lecture notes.
-
-        TASK:
-        - Use the given outline headings (h1) and subheadings (h2) to organize the user notes.
-        - Keep all the original content from the user notes — do not remove, shorten, or paraphrase important points.
-        - For each h1 and h2 heading from the outline, place the related user notes underneath as bullet points.
-        - If a note does not fit any heading exactly, place it under the most relevant heading.
-        - Maintain the student's original realistic tone — the notes should sound human and natural.
-        - Keep all timestamps [hh:mm:ss] at the start of each bullet point.
-        - Only modify the structure (organization), not the content.
-        - Follow this output format exactly:
-
-        <h1>[hh:mm:ss] 1. SUBJECT MAIN HEADING </h1>
-            <h2>[hh:mm:ss] SUBJECT SUBHEADING 1</h2>
-                <ul>
-                    <li>[hh:mm:ss] point from user notes</li>
-                    <li>[hh:mm:ss] point from user notes</li>
-                </ul>
-            <h2>[hh:mm:ss] SUBJECT SUBHEADING 2</h2>
-                <ul>
-                    <li>[hh:mm:ss] point from user notes</li>
-                </ul>
-
-        <h1>[hh:mm:ss] 2. SUBJECT MAIN HEADING</h1>
-            ...
-
-        Input:
-        - Outline with 5 h1 headings.
-        - Full detailed user notes with timestamps.
-
-        Your goal is to smartly merge them together while preserving everything important.    
-    """
-    
     initial_outline = client.models.generate_content(
         model="gemini-2.5-flash-preview-04-17", contents=["You are student taking notes for a lecture. Can you summarize this lecture transcript by key topics? Limit it to 5 h1 headers and follow this format EXACTLY: \n" + raw_outline_template, raw_transcript]
     )
@@ -113,9 +79,26 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
         output.write(timestamped_outline.text)
 
     user_notes = client.files.upload(file=user_notes_path)
+
+    user_note_prompt = f"""
+        You are a student organizing lecture notes.
+
+        TASK:
+        - Use the given outline headings (h1) and subheadings (h2) to organize the user notes.
+        - Keep all the original content from the user notes.
+        - For each h1 and h2 heading from the outline, place the related user notes underneath as bullet points.
+        - Keep all timestamps [hh:mm:ss] at the start of each bullet point.
+        Here is the given outline:
         
+        {timestamped_outline.text}
+
+        Input:
+        - Full detailed user notes with timestamps.
+        Your goal is to smartly merge them together while preserving everything the outline template.
+    """
+    
     user_notes_outline_response = client.models.generate_content(
-        model="gemini-2.0-flash", contents=[user_note_prompt, user_notes]
+        model="gemini-2.0-flash", contents=[user_note_prompt, timestamped_outline, user_notes]
     )
     
     with open('./text_files/templated_user_notes.txt', 'w') as output:
@@ -123,6 +106,8 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
 
     print("Finished formatting user notes!", file=sys.stderr)
 
+    formatted_user_notes = client.files.upload(file='./text_files/templated_user_notes.txt')
+    
     timestamped_notes_prompt = """
     You are a student writing extremely detailed lecture notes.
 
@@ -131,19 +116,64 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
     - Expand the existing notes with *additional* detailed points if the transcript mentions new information.
     - Always preserve the original user notes — do NOT remove, reword, or replace them.
     - Insert new points as additional bullet points (<li>) under the correct <h2> subheading.
-    - If a new idea from the transcript fits none of the existing subheadings, skip it. (DO NOT create new subheadings unless explicitly told.)
     - Maintain the professor's natural tone — notes should sound academic and precise.
+    - Do not modify the structure.
     - Start every bullet point with a timestamp [hh:mm:ss].
     - Follow the output format EXACTLY:
 
-    <h1> Heading </h1>
-        <h2> Subheading </h2>
-            <ul>
-                <li>[hh:mm:ss] existing bullet 1</li>
-                <li>[hh:mm:ss] existing bullet 2</li>
-                <li>[hh:mm:ss] new detailed bullet from transcript</li>
-                <li>[hh:mm:ss] new detailed bullet from transcript</li>
-            </ul>
+        <h1>[hh:mm:ss] 1. SUBJECT MAIN HEADING </h1>
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING 1</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                    <li>[hh:mm:ss] point from user notes</li>
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING 1</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                    <li>[hh:mm:ss] point from user notes</li>
+                </ul>            
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING 2</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                </ul>
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING N</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                    <li>[hh:mm:ss] point from user notes</li>                    
+                </ul>                
+
+        <h1>[hh:mm:ss] 2. SUBJECT MAIN HEADING </h1>
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING 1</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                    <li>[hh:mm:ss] point from user notes</li>
+                </ul>
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING 2</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                    <li>[hh:mm:ss] point from user notes</li>                    
+                </ul>
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING N</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                    <li>[hh:mm:ss] point from user notes</li>                    
+                </ul>
+        
+        <h1>[hh:mm:ss] N. SUBJECT MAIN HEADING </h1>
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING 1</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                    <li>[hh:mm:ss] point from user notes</li>
+                </ul>
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING 2</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                    <li>[hh:mm:ss] point from user notes</li>                    
+                </ul>
+            <h2>[hh:mm:ss] SUBJECT SUBHEADING N</h2>
+                <ul>
+                    <li>[hh:mm:ss] point from user notes</li>
+                    <li>[hh:mm:ss] point from user notes</li>                    
+                </ul>
 
     Important:
     - Do NOT remove or change any original bullet points.
@@ -155,12 +185,10 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
     - (2) A full lecture transcript.
 
     Your goal is to add additional detailed notes intelligently into the existing structure.
-    Here is the timestamped outline with user notes:
-    {user_notes_outline_response.text}
     """
 
     timestamped_notes = client.models.generate_content(
-        model="gemini-2.0-flash", contents=[timestamped_notes_prompt, timestamped_transcript]
+        model="gemini-2.0-flash", contents=[timestamped_notes_prompt, formatted_user_notes, timestamped_transcript]
     )
 
     print("Finished timestamped notes!", file=sys.stderr)
@@ -424,5 +452,5 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
     
     print("Successfully completed notes!", file=sys.stderr)
 
-if __name__ == '__main__':
-    generate_notes('./text_files/user_notes.html', './text_files/transcript2.txt', './text_files/transcript2.vtt')
+# if __name__ == '__main__':
+#     generate_notes('./text_files/user_notes.html', './text_files/transcript.txt', './text_files/transcript.vtt')
