@@ -43,7 +43,7 @@ export class VoiceRecognitionService {
         } 
       });
 
-      this.mediaRecorder.start(250);
+      this.mediaRecorder.start(80);
     } catch (error) {
       console.error('Microphone access error:', error);
     }
