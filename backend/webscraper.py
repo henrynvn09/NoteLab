@@ -102,15 +102,18 @@ def is_academic_url(url):
 
 # retry 3 times in case google blocks request
 def safe_search(query, num_sites):
-    for _ in range(3):  # Try 3 times
+    retries = 3
+    for attempt in range(retries):
         try:
-            all_results = list(search(query, num=20, start=0, stop=20))
+            all_results = list(search(query, num=20, start=0, stop=20, pause=random.uniform(2, 4)))
             academic_results = [url for url in all_results if is_academic_url(url)]
             return academic_results[:num_sites]
         except Exception as e:
-            print(f"Search failed, retrying... {e}", file=sys.stderr)
-            time.sleep(random.uniform(1, 3))
-    raise Exception("Failed search after 3 retries")
+            print(f"[Attempt {attempt+1}/{retries}] Search failed: {e}", file=sys.stderr)
+            wait_time = random.uniform(2, 5)
+            print(f"Retrying after {wait_time:.2f} seconds...", file=sys.stderr)
+            time.sleep(wait_time)
+    raise Exception("Failed search after 3 retries.")
 
 def search_web(query, num_sites=0):
     data = []   
