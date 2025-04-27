@@ -1,3 +1,5 @@
+[Video Demo](https://www.loom.com/share/910c43ab4b73458093ce54223d699405?sid=ae8dc313-47ea-4c7f-8204-a01266f80943)
+
 # NoteLab - Your Personal Learning Assistant
 
 <p align="center">
