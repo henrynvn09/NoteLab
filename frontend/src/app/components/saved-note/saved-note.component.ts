@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { LectureDataService, LectureUpdateResponse } from '../../services/lecture-data.service';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { FileService } from '../../services/file.service';
 
 interface TranscriptLine {
   startTime: number;
@@ -58,7 +59,8 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
     private noteService: NoteService,
     private route: ActivatedRoute,
     private lectureDataService: LectureDataService,
-    private http: HttpClient
+    private http: HttpClient,
+    private fileService: FileService
   ) {}
 
   ngOnInit(): void {
@@ -117,8 +119,9 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
    * @param data The lecture data to process
    */
   private processLectureData(data: LectureUpdateResponse): void {
-    // For now, we'll just set the data in the note service
-    console.log('Processing lecture data new function:', data);
+    console.log('Processing lecture data with FileService:', data);
+    
+    // Set title and notes
     if (data.title) {
       console.log('Setting lecture title:', data.title);
       this.lectureTitle = data.title;
@@ -128,29 +131,54 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
       this.noteService.setCurrentNote(data.note);
     }
     
-    // If there's transcript data, update our transcript array
+    // Process transcript data if available
     if (data.transcript) {
-      // In a real implementation, you would parse the transcript into transcript lines
-      // For now, we'll just add a simple entry
       this.transcript = data.transcript.split('\n').map((line, index) => ({
         startTime: index * 5, // Placeholder for start time
         text: line
       }));
     }
     
-    // If there are slides, update the PDF viewer
+    // Use FileService to handle PDF file
     if (data.slides) {
-      // Set the PDF source from the slides data in the response
-      this.pdfSrc = data.slides;
-      console.log('Set PDF source from response:', this.pdfSrc);
+      const pdfFileName = data.slides.split('/').pop() || 'lecture-slides.pdf';
+      this.pdfFileName = pdfFileName;
+      
+      // Use FileService to get the proper URL format for the PDF file
+      if (data.slides.startsWith('/')) {
+        // If path is absolute
+        this.pdfSrc = this.fileService.getFileUrl(data.slides);
+      } else if (data.slides.includes('/')) {
+        // If path is relative but with directories
+        this.pdfSrc = this.fileService.getFileUrl('/' + data.slides);
+      } else {
+        // If just filename
+        this.pdfSrc = this.fileService.getPdfUrl(data.slides);
+      }
+      
+      console.log('Set PDF source using FileService:', this.pdfSrc);
     }
     
-    // Similarly for recording data
+    // Use FileService to handle audio recording
     if (data.recording) {
-      // In a real implementation, you would set the audio source
-      // For now, we'll just log it
-      console.log('Received recording data:', data.recording);
-      console.log('Set audio source from response:', data.recording);
+      // Get proper audio URL from FileService
+      if (data.recording.includes('/')) {
+        // If path includes directories
+        this.audioSrc = this.fileService.getFileUrl(data.recording);
+      } else {
+        // If just filename
+        this.audioSrc = this.fileService.getAudioUrl(data.recording);
+      }
+      
+      console.log('Set audio source using FileService:', this.audioSrc);
+      
+      // Make sure the audio player loads the new source
+      setTimeout(() => {
+        if (this.audioPlayerRef && this.audioPlayerRef.nativeElement) {
+          this.audioPlayerRef.nativeElement.load();
+          console.log('Audio player loaded with new source');
+        }
+      }, 100);
     }
   }
   
