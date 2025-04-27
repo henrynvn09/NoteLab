@@ -5,14 +5,18 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { authGuard } from './guards/auth.guard';
 import { ChatComponent } from './components/chat/chat.component';
+import { CoursePageComponent } from './components/CoursePage/coursepage.component';
+import { LecturesPageComponent } from './components/lectures-page/lectures-page.component';
 
 const routes: Routes = [
-  // { path: '', component: AudioRecorderComponent, canActivate: [authGuard] },
-  { path: '', component: AudioRecorderComponent },
+  { path: '', component: AudioRecorderComponent, canActivate: [authGuard] },
+  { path: 'courses', component: CoursePageComponent, canActivate: [authGuard] },
+  { path: 'courses/:courseId', component: LecturesPageComponent, canActivate: [authGuard] },
+  { path: 'courses/:courseId/:lectureId', component: AudioRecorderComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'chat', component: ChatComponent },
-  // { path: '**', redirectTo: '' },
+  { path: 'chat', component: ChatComponent, canActivate: [authGuard] },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

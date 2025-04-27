@@ -1,0 +1,53 @@
+<div class="lectures-page-container">
+  <!-- Course navigation/header -->
+  <div class="lectures-header">
+    <button class="back-button" (click)="goBackToCourses()">
+      <span class="back-icon">←</span>
+      Back to Courses
+    </button>
+    <h1 class="course-title">{{ courseName || 'Course Lectures' }}</h1>
+    <div class="course-id">Course ID: {{ courseId }}</div>
+  </div>
+
+  <!-- Error message -->
+  <div class="error-message" *ngIf="error">
+    {{ error }}
+    <button (click)="loadLectures(courseId)">Try Again</button>
+  </div>
+
+  <!-- Loading state -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading lecture notes...</p>
+  </div>
+
+  <!-- Lectures content -->
+  <div class="lectures-content" *ngIf="!isLoading && !error">
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="lectures.length === 0">
+      <div class="empty-icon">📚</div>
+      <h3>No Lecture Notes Yet</h3>
+      <p>Start by creating your first lecture note for this course.</p>
+      <button class="create-button" (click)="createNewLecture()">Create First Lecture</button>
+    </div>
+
+    <!-- Lecture notes list -->
+    <div class="lectures-list" *ngIf="lectures.length > 0">
+      <div class="lectures-grid">
+        <div class="lecture-card" *ngFor="let lecture of lectures" (click)="viewLecture(lecture.lecture_id, lecture.lecture_name)">
+          <div class="lecture-icon">📝</div>
+          <div class="lecture-name">{{ lecture.lecture_name }}</div>
+          <div class="lecture-actions">
+            <button class="view-button">View</button>
+          </div>
+        </div>
+        
+        <!-- Add new lecture card -->
+        <div class="lecture-card add-lecture" (click)="createNewLecture()">
+          <div class="lecture-icon add-icon">+</div>
+          <div class="lecture-name">Add New Lecture</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

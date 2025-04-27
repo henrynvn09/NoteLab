@@ -102,3 +102,27 @@
   overflow-y: auto;
   line-height: 1.6;
 }
+
+.transcript div {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.transcript strong {
+  display: block;
+  color: #555;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.transcript p {
+  margin: 0;
+  font-size: 1rem;
+  color: #222;
+  white-space: pre-wrap;
+}
+
+.transcription-container {
+  margin: 0 1rem;
+}

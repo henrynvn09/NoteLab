@@ -1,6 +1,28 @@
 .app-container {
   height: 100vh;
   
+.title-input {
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  outline: none;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.title-text {
+  margin: 0;
+  margin-bottom: 0.5rem;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.title-text:hover {
+  color: #555;
+}
+
   header {
     background-color: #3f51b5;
     color: white;

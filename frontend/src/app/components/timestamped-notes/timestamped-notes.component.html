@@ -1,5 +1,21 @@
 <div class="notes-container">
-  <h3>Timestamped Notes</h3>
+  
+<div class="title-section">
+    <!-- If editing, show input -->
+    <input *ngIf="isEditingTitle" 
+           [(ngModel)]="noteTitle"
+           (keydown.enter)="saveTitle()" 
+           (blur)="saveTitle()" 
+           class="title-input"
+           autofocus />
+
+    <!-- If not editing, show text -->
+    <h3 *ngIf="!isEditingTitle" 
+        (click)="editTitle()" 
+        class="title-text">
+      {{ noteTitle }}
+    </h3>
+  </div>
 
   <div class="note-input">
     <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
@@ -10,5 +26,4 @@
     ></ngx-editor>
   </div>
 
-  <!-- <button (click)="downloadNote()">Download Notes</button> -->
 </div>

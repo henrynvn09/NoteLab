@@ -53,6 +53,16 @@ export class TimestampedNotesComponent implements OnInit, OnDestroy, AfterViewIn
   ngOnDestroy(): void {
     this.editor.destroy();
   }
+noteTitle: string = 'Timestamped Notes';
+isEditingTitle: boolean = false; // Start in text mode
+
+editTitle() {
+  this.isEditingTitle = true;
+}
+
+saveTitle() {
+  this.isEditingTitle = false;
+}
 
   @HostListener('document:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {

@@ -1,17 +1,4 @@
 <div class="app-container">
-  <!-- <header>
-    <h1>{{ title }}</h1>
-    <nav class="nav-links">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-      <ng-container *ngIf="!authService.isLoggedIn(); else loggedIn">
-        <a routerLink="/login" routerLinkActive="active">Login</a>
-        <a routerLink="/register" routerLinkActive="active">Register</a>
-      </ng-container>
-      <ng-template #loggedIn>
-        <a href="#" (click)="logout($event)">Logout</a>
-      </ng-template>
-    </nav>
-  </header> -->
   <main>
     <router-outlet></router-outlet>
   </main>
