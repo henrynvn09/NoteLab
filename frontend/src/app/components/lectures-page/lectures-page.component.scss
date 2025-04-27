@@ -2,25 +2,27 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
-// Header styling
+// Header styling with color scheme matching navbar
 .lectures-header {
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #ccc; // Match border color with navbar
+  display: flex;
+  flex-direction: column;
 
   .back-button {
     display: inline-flex;
     align-items: center;
     padding: 8px 16px;
-    background: #f5f5f5;
+    background: #f0f0f0; // Match navbar background color
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
-    color: #333;
+    color: #6879AF; // Match navbar text color
     transition: background-color 0.2s;
 
     &:hover {
@@ -30,35 +32,37 @@
     .back-icon {
       margin-right: 8px;
       font-size: 18px;
+      color: #44507F; // Match primary blue color
     }
   }
 
   .course-title {
     margin: 16px 0 8px;
     font-size: 28px;
-    color: #2c3e50;
+    color: #44507F; // Match primary blue color
+    font-weight: bold;
   }
 
   .course-id {
     font-size: 14px;
-    color: #7f8c8d;
+    color: #6879AF; // Use the lighter blue from navbar
   }
 }
 
-// Loading state
+// Loading state - using similar styling as profile dropdown
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 3rem 0;
-  color: #7f8c8d;
+  color: #6879AF; // Match navbar text color
 
   .loading-spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #3498db;
+    border: 4px solid rgba(68, 80, 127, 0.1); // Use primary blue with opacity
+    border-left-color: #44507F; // Primary blue
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
@@ -73,8 +77,8 @@
 
 // Error message
 .error-message {
-  background-color: #fdeded;
-  border: 1px solid #f5c6cb;
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
   color: #721c24;
   padding: 1rem;
   border-radius: 4px;
@@ -82,7 +86,7 @@
   text-align: center;
 
   button {
-    background-color: #dc3545;
+    background-color: #44507F; // Match primary blue
     color: white;
     border: none;
     padding: 8px 16px;
@@ -91,7 +95,7 @@
     cursor: pointer;
 
     &:hover {
-      background-color: #c82333;
+      background-color: #6879AF; // Match lighter blue on hover
     }
   }
 }
@@ -102,16 +106,17 @@
   padding: 3rem 1rem;
   background: #f8f9fa;
   border-radius: 8px;
-  color: #6c757d;
+  color: #6879AF; // Match navbar text color
 
   .empty-icon {
     font-size: 48px;
     margin-bottom: 1rem;
+    color: #44507F; // Primary blue
   }
 
   h3 {
     margin: 0 0 0.5rem;
-    color: #343a40;
+    color: #44507F; // Primary blue
   }
 
   p {
@@ -119,7 +124,7 @@
   }
 
   .create-button {
-    background-color: #007bff;
+    background-color: #44507F; // Match primary blue
     color: white;
     border: none;
     padding: 10px 20px;
@@ -128,7 +133,7 @@
     cursor: pointer;
 
     &:hover {
-      background-color: #0069d9;
+      background-color: #6879AF; // Match lighter blue on hover
     }
   }
 }
@@ -141,7 +146,7 @@
   margin-top: 1rem;
 }
 
-// Lecture card
+// Lecture card - similar to profile dropdown styling
 .lecture-card {
   display: flex;
   flex-direction: column;
@@ -161,13 +166,14 @@
   .lecture-icon {
     font-size: 32px;
     margin-bottom: 1rem;
+    color: #44507F; // Primary blue
   }
 
   .lecture-name {
     font-weight: 500;
     text-align: center;
     margin-bottom: 1rem;
-    color: #2c3e50;
+    color: #44507F; // Primary blue
     word-break: break-word;
   }
 
@@ -175,7 +181,7 @@
     margin-top: auto;
 
     .view-button {
-      background-color: #3498db;
+      background-color: #44507F; // Match primary blue
       color: white;
       border: none;
       padding: 8px 16px;
@@ -183,21 +189,21 @@
       cursor: pointer;
 
       &:hover {
-        background-color: #2980b9;
+        background-color: #6879AF; // Match lighter blue on hover
       }
     }
   }
 
   &.add-lecture {
     background: #f8f9fa;
-    border: 2px dashed #dee2e6;
+    border: 2px dashed #ccc; // Match border color with navbar
 
     &:hover {
-      background: #e9ecef;
+      background: #f0f0f0; // Match navbar background color
     }
 
     .add-icon {
-      color: #6c757d;
+      color: #6879AF; // Match navbar text color
     }
   }
 }

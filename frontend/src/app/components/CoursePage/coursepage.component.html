@@ -18,12 +18,13 @@
       </div>
 
       <!-- Add new course folder -->
-      <div class="course-folder add-folder" (click)="addNewCourse()" [class.disabled]="isCreatingCourse">
-        <div class="folder-icon plus-icon" *ngIf="!isCreatingCourse">+</div>
-        <div class="spinner" *ngIf="isCreatingCourse"></div>
-        <div class="course-name" *ngIf="isCreatingCourse">Creating...</div>
-      </div>
+        <div class="course-folder add-folder" (click)="addNewCourse()" [class.disabled]="isCreatingCourse">
+          <div class="folder-icon">
+            <div class="plus-icon" *ngIf="!isCreatingCourse"></div>
+          </div>
+          <div class="spinner" *ngIf="isCreatingCourse"></div>
+          <div class="course-name">Add Course</div>
+        </div>    
     </div>
-
   </div>
 </div>
