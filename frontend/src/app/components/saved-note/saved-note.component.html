@@ -1,0 +1,58 @@
+<div class="audio-recorder-container">
+  <!-- Recording Controls Component -->
+
+  
+  <div class="content-container">
+    <!-- PDF Viewer Section (Left) -->
+    <div class="pdf-center-wrapper">
+      <div class="pdf-and-controls-wrapper">
+        <div>
+          <app-left-navbar></app-left-navbar>
+        </div>
+        <div class="pdf-viewer-wrapper">
+          <app-pdf-viewer 
+            [pdfSrc]="pdfSrc"
+            [pdfFileName]="pdfFileName"
+            (slideNumberChange)="onSlideNumberChange($event)"
+            (pdfSelected)="onPdfSelected($event)">
+          </app-pdf-viewer>
+        </div>
+<!-- 
+        <div class="recording-audio-wrapper">
+          <app-recording-controls></app-recording-controls>
+          <app-audio-playback 
+            [audioURL]="audioURL" 
+            (audioLoaded)="onAudioLoaded($event)">
+          </app-audio-playback>
+        </div> -->
+        <div>
+          <div class="audio-transcript-player">
+            <div class="audio-player">
+              <audio #audioPlayer controls>
+                <source [src]="audioSrc" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+            <div class="transcript-viewer">
+              <h3>Transcript</h3>
+              <div class="transcript-container">
+                <div *ngFor="let line of transcript" 
+                     [ngClass]="{'active-line': isCurrentLine(line)}"
+                     (click)="seekToTimestamp(line.startTime)">
+                  <span class="timestamp">{{ formatTimestamp(line.startTime) }}</span>
+                  <span class="text">{{ line.text }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- Notes Section (Right) -->
+    <div class="timestamped-notes-wrapper">
+      <app-timestamped-notes [isRecording]="isRecording"></app-timestamped-notes>      
+     </div>
+  </div>
+</div>
