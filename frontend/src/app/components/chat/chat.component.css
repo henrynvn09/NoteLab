@@ -72,3 +72,7 @@
   color: #222;
   white-space: pre-wrap;
 }
+
+.transcription-container {
+  margin: 0 1rem;
+}
