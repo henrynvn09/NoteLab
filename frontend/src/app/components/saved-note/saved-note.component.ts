@@ -54,6 +54,9 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
   // Tab navigation
   activeTab: 'notes' | 'ai-notes' = 'notes'; // Default to notes tab
 
+  // Add this property
+  audioLoadError: string | null = null;
+
   constructor(
     private audioRecordingService: AudioRecordingService,
     private noteService: NoteService,
@@ -138,6 +141,8 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
         text: line
       }));
     }
+
+    console.log('Raw lecture data files:', data.slides, data.recording);
     
     // Use FileService to handle PDF file
     if (data.slides) {
@@ -159,15 +164,19 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
       console.log('Set PDF source using FileService:', this.pdfSrc);
     }
     
+    const dataRecording = data.recording || '';
     // Use FileService to handle audio recording
-    if (data.recording) {
+    if (dataRecording) {
       // Get proper audio URL from FileService
-      if (data.recording.includes('/')) {
-        // If path includes directories
-        this.audioSrc = this.fileService.getFileUrl(data.recording);
+      if (dataRecording.startsWith('/uploads/audio/')) {
+        // If it's already the correct path structure
+        this.audioSrc = this.fileService.getFileUrl(dataRecording);
+      } else if (dataRecording.includes('/')) {
+        // If path includes directories but not the correct structure
+        this.audioSrc = this.fileService.getFileUrl('/uploads/audio/' + dataRecording.split('/').pop());
       } else {
         // If just filename
-        this.audioSrc = this.fileService.getAudioUrl(data.recording);
+        this.audioSrc = this.fileService.getAudioUrl(dataRecording);
       }
       
       console.log('Set audio source using FileService:', this.audioSrc);
@@ -175,8 +184,43 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
       // Make sure the audio player loads the new source
       setTimeout(() => {
         if (this.audioPlayerRef && this.audioPlayerRef.nativeElement) {
-          this.audioPlayerRef.nativeElement.load();
-          console.log('Audio player loaded with new source');
+          const player = this.audioPlayerRef.nativeElement;
+          
+          // Check if WebM is supported
+          const canPlayWebm = player.canPlayType('audio/webm') !== '';
+          console.log('Browser WebM support:', canPlayWebm ? 'Yes' : 'Limited/No');
+          
+          // Set audio type explicitly in source element
+          if (!player.querySelector('source')) {
+            const sourceElement = document.createElement('source');
+            sourceElement.src = this.audioSrc;
+            sourceElement.type = 'audio/webm'; // Explicitly set MIME type
+            player.appendChild(sourceElement);
+          } else {
+            // Update existing source
+            const sourceElement = player.querySelector('source');
+            if (sourceElement) { // Add null check here
+              sourceElement.src = this.audioSrc;
+              sourceElement.type = 'audio/webm';
+            } else {
+              console.error('Source element not found but querySelector returned truthy value');
+            }
+          }
+          
+          console.log('Loading audio with src:', this.audioSrc);
+          player.load();
+          
+          // Enhanced error handling
+          player.onerror = (e) => {
+            console.error('Audio player error:', player.error);
+            console.error('Error code:', player.error?.code);
+            console.error('Error message:', player.error?.message);
+          };
+          
+          // Add a canplay event listener to confirm successful loading
+          player.addEventListener('canplay', () => {
+            console.log('Audio can play now');
+          });
         }
       }, 100);
     }
@@ -325,6 +369,30 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
     // Unsubscribe from lecture data subscription
     if (this.lectureDataSubscription) {
       this.lectureDataSubscription.unsubscribe();
+    }
+  }
+
+  // Add this method
+  handleAudioError(event: Event) {
+    const audioElement = event.target as HTMLAudioElement;
+    if (audioElement && audioElement.error) {
+      console.error('Audio error:', audioElement.error.code, audioElement.error.message);
+      switch(audioElement.error.code) {
+        case MediaError.MEDIA_ERR_ABORTED:
+          this.audioLoadError = "Playback aborted by the user.";
+          break;
+        case MediaError.MEDIA_ERR_NETWORK:
+          this.audioLoadError = "Network error while loading audio.";
+          break;
+        case MediaError.MEDIA_ERR_DECODE:
+          this.audioLoadError = "Audio decoding error - file may be corrupted.";
+          break;
+        case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+          this.audioLoadError = "Audio format not supported by your browser.";
+          break;
+        default:
+          this.audioLoadError = "Unknown audio error occurred.";
+      }
     }
   }
 }

@@ -215,6 +215,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       // Add audio recording if available
       if (audioData && audioData.blob) {
         const fileName = `lecture_${this.courseId || 'unknown'}_${Date.now()}.webm`;
+        // Set the initial local filename (will be updated with server path after request)
         lectureData.recording = fileName;
 
         // send a POST request to the server to save the audio file
@@ -242,6 +243,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
             formData
           )
         );
+        
+        // Update the recording path with the server path from the response
+        if (response && response.filePaths && response.filePaths.audio) {
+          lectureData.recording = response.filePaths.audio;
+          console.log('Updated recording path from server:', lectureData.recording);
+        }
+        
+        console.log("Response from server:", response);
       }
 
       const pdfResponseData = this.pdfStateService.getPdfResponse();
