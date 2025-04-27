@@ -207,8 +207,8 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
     this.pdfFileName = pdfData.file.name;
     this.pdfSrc = pdfData.url;
     
-    // Update note service about PDF status
-    this.noteService.setPdfStatus(true);
+    // Store PDF file in NoteService
+    this.noteService.setPdfFile(pdfData.file, pdfData.url);
   }
 
   // Auto-scroll to bottom of textarea

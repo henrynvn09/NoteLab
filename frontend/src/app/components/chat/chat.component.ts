@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { LectureDataService, LectureUpdateResponse } from '../../services/lecture-data.service';
+import { NoteService } from '../../services/note.service';
+
 
 interface TranscriptEntry {
   text: string;
@@ -42,14 +44,21 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     private route: ActivatedRoute,
     private http: HttpClient,
     private lectureDataService: LectureDataService,
-    private router: Router
+    private router: Router,
+    private noteService: NoteService
   ) {}
 
   ngOnInit(): void {
     // Get course information from the route parameters
     this.route.paramMap.subscribe(params => {
+      // Extract courseId from the URL path (first parameter after /courses/)
+      const courseIdParam = params.get('courseId');
       const courseNameParam = params.get('courseName');
       const lectureIdParam = params.get('lectureId');
+      
+      if (courseIdParam) {
+        this.courseId = courseIdParam;
+      }
       
       if (courseNameParam) {
         this.courseName = courseNameParam.replace(/-/g, ' ');
@@ -66,7 +75,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const courseNameParam = params.get('courseName');
       const lectureIdParam = params.get('lectureId');
       
-      if (courseIdParam) {
+      if (courseIdParam && !this.courseId) {
         this.courseId = courseIdParam;
       }
       
@@ -92,6 +101,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.shouldScrollToBottom = true;
       },
     });
+
+    // Log the extracted parameters for debugging
+    console.log('Extracted course ID:', this.courseId);
+    console.log('Extracted lecture ID:', this.lectureId);
+    console.log('Extracted course name:', this.courseName);
   }
 
   ngAfterViewChecked() {
@@ -140,38 +154,61 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // New methods for Submit and Start Over buttons
   // Submit transcript and lecture materials to the server
   async submitTranscript(): Promise<void> {
-    console.log('Submitting transcript and lecture materials...');
+    const currentNote = this.noteService.getCurrentNote();
+    const noteTitle = this.noteService.getNoteTitle() || 'Untitled Lecture';
+    
+    console.log('Getting current note:', currentNote);
+    console.log('Note title:', noteTitle);
+    
+    // Get PDF file directly from NoteService
+    const pdfFile = this.noteService.getPdfFile();
+    const isPdfLoaded = this.noteService.isPdfLoaded();
+    
+    // Generate VTT format
+    const vttHeader = "WEBVTT\n\n";
+    const vttBody = this.transcriptEntries.map((entry, index) => {
+      return `${this.formatTime(entry.start)} --> ${this.formatTime(entry.end)}\n${entry.text}\n`;
+    }).join('\n');
+    const vttContent = vttHeader + vttBody;
+    
+    // Plain text format (chat log)
+    const chatLogContent = this.chatLog.join('\n');
     
     try {
       // Prepare the data to be sent
       const lectureData = {
-        title: this.courseName || 'Untitled Lecture',
-        notes: this.chatLog.join('\n'),
-        timestamps: this.transcriptEntries,
-        pdf: null // We would include PDF data here if available
+        title: noteTitle,
+        transcript: chatLogContent,
+        transcriptVTT: vttContent,
+        // slides: isPdfLoaded && pdfFile ? pdfFile : null,
+        slides:"",
+        userNotes: currentNote,// Include user notes if available
+        recording: "",
+        ai_note:"",
       };
+
+      console.log('Sending lecture data to endpoint:', lectureData);
+      console.log('Course ID:', this.courseId);
+      // Use the courseId from the component state instead of hardcoding
+      if (!this.courseId) {
+        throw new Error('Course ID is missing. Cannot submit lecture data.');
+      }
       
-      console.log('Sending lecture data:', lectureData);
+      const endpoint = `http://localhost:8000/courses/${this.courseId}`;
+      console.log('Submitting to endpoint:', endpoint);
       
-      // Simulate a server call with a 5 second delay as requested
-      const response = await new Promise<LectureUpdateResponse>((resolve) => {
-        setTimeout(() => {
-          // Temporary response structure
-          const tempResponse: LectureUpdateResponse = {
-            note: "",
-            slides: "",
-            recording: "",
-            transcript: "",
-            ai_note: ""
-          };
-          resolve(tempResponse);
-        }, 5000); // 5 second delay
-      });
+      // Show loading indicator or message
+      this.isStoppedState = false;
+      this.hasLogs = true;
       
-      console.log('Received response:', response);
+      // Send POST request to the endpoint
+      const response = await firstValueFrom(
+        this.http.post<LectureUpdateResponse>(endpoint, lectureData)
+      );
+      
+      console.log('Received response from server:', response);
       
       // Process the response data and pass to saved-note component
-      // For now, we'll just log it
       this.handleLectureResponse(response);
       
       // Keep the isStoppedState true to continue showing the submit/start over buttons
@@ -180,6 +217,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     } catch (error) {
       console.error('Error submitting lecture materials:', error);
       alert('Failed to submit lecture materials. Please try again.');
+      this.isStoppedState = true;
     }
   }
   

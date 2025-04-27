@@ -17,6 +17,9 @@ export class NoteService {
   private pdfLoaded = false;
   private audioElement: HTMLAudioElement | null = null;
   private firstTyped = false; // 🆕 Track if first typing happened
+  private noteTitle: string = 'Untitled Note';
+  private pdfFile: File | null = null;
+  private pdfUrl: string | null = null;
 
 
   constructor(private timerService: TimerService) { }
@@ -29,12 +32,34 @@ export class NoteService {
     return this.audioElement;
   }
 
+  setPdfFile(file: File, url: string): void {
+    this.pdfFile = file;
+    this.pdfUrl = url;
+    this.pdfLoaded = true;
+  }
+
+  getPdfFile(): File | null {
+    return this.pdfFile;
+  }
+
+  getPdfUrl(): string | null {
+    return this.pdfUrl;
+  }
+
   setCurrentSlideNumber(slideNumber: number): void {
     this.currentSlideNumber = slideNumber;
   }
 
+  getCurrentSlideNumber(): number {
+    return this.currentSlideNumber;
+  }
+
   setPdfStatus(isLoaded: boolean): void {
     this.pdfLoaded = isLoaded;
+  }
+
+  isPdfLoaded(): boolean {
+    return this.pdfLoaded;
   }
 
   getCurrentNote(): string {
@@ -52,6 +77,17 @@ export class NoteService {
   getAllNotes(): TimestampedNote[] {
     return this.notes;
   }
+
+
+
+setNoteTitle(title: string): void {
+  console.log('Setting note title:', title);
+  this.noteTitle = title;
+}
+
+getNoteTitle(): string {
+  return this.noteTitle;
+}
 
   insertTimestamp(isRecording: boolean): void {
     if (this.audioElement && !isRecording) {
