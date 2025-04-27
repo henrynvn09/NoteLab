@@ -6,6 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { LectureDataService, LectureUpdateResponse } from '../../services/lecture-data.service';
 import { PdfStateService } from 'src/app/services/pdf-state.service';
+import { NoteService } from '../../services/note.service';
+
 
 interface TranscriptEntry {
   text: string;
@@ -53,14 +55,21 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     private http: HttpClient,
     private lectureDataService: LectureDataService,
     private router: Router,
-    private pdfStateService: PdfStateService // Add this
+    private pdfStateService: PdfStateService, // Add this,
+    private noteService: NoteService
   ) {}
 
   ngOnInit(): void {
     // Get course information from the route parameters
     this.route.paramMap.subscribe(params => {
+      // Extract courseId from the URL path (first parameter after /courses/)
+      const courseIdParam = params.get('courseId');
       const courseNameParam = params.get('courseName');
       const lectureIdParam = params.get('lectureId');
+      
+      if (courseIdParam) {
+        this.courseId = courseIdParam;
+      }
       
       if (courseNameParam) {
         this.courseName = courseNameParam.replace(/-/g, ' ');
@@ -77,7 +86,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const courseNameParam = params.get('courseName');
       const lectureIdParam = params.get('lectureId');
       
-      if (courseIdParam) {
+      if (courseIdParam && !this.courseId) {
         this.courseId = courseIdParam;
       }
       
@@ -103,6 +112,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.shouldScrollToBottom = true;
       },
     });
+
+    // Log the extracted parameters for debugging
+    console.log('Extracted course ID:', this.courseId);
+    console.log('Extracted lecture ID:', this.lectureId);
+    console.log('Extracted course name:', this.courseName);
   }
 
   ngAfterViewChecked() {
@@ -161,55 +175,103 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // New methods for Submit and Start Over buttons
   // Submit transcript and lecture materials to the server
   async submitTranscript(): Promise<void> {
-    console.log('Submitting transcript and lecture materials...');
+    const currentNote = this.noteService.getCurrentNote();
+    const noteTitle = this.noteService.getNoteTitle() || 'Untitled Lecture';
+    
+    console.log('Getting current note:', currentNote);
+    console.log('Note title:', noteTitle);
+    
+    // Get PDF file directly from NoteService
+    const pdfFile = this.noteService.getPdfFile();
+    const isPdfLoaded = this.noteService.isPdfLoaded();
+    
+    // Generate VTT format
+    const vttHeader = "WEBVTT\n\n";
+    const vttBody = this.transcriptEntries.map((entry, index) => {
+      return `${this.formatTime(entry.start)} --> ${this.formatTime(entry.end)}\n${entry.text}\n`;
+    }).join('\n');
+    const vttContent = vttHeader + vttBody;
+    
+    
+    // Plain text format (chat log)
+    const chatLogContent = this.chatLog.join('\n');
     
     try {
+      // Prepare the data to be sent
+      const lectureData = {
+        title: noteTitle,
+        transcript: chatLogContent,
+        transcriptvtt: vttContent,
+        // slides: isPdfLoaded && pdfFile ? pdfFile : null,
+        slides:pdfFile,
+        userNotes: currentNote,// Include user notes if available
+        recording: "",
+        ai_note:"",
+      };
+
       // Get audio recording from voice service
       const audioData = this.voiceService.getAudioData();
-      
-      // Prepare form data with all materials
-      const formData = new FormData();
-      
+
       // Add audio recording if available
       if (audioData && audioData.blob) {
         const fileName = `lecture_${this.courseId || 'unknown'}_${Date.now()}.webm`;
-        formData.append('audio', fileName);
+        lectureData.recording = fileName;
+
+        // send a POST request to the server to save the audio file
+        const formData = new FormData();
+        formData.append('audio', audioData.blob, fileName);
+        formData.append('courseId', this.courseId || '');
+        formData.append('lectureId', this.lectureId || '');
+        // Add title and transcript which are required by the backend
+        formData.append('title', noteTitle);
+        formData.append('transcript', chatLogContent);
+        
+        // Only append slides if a PDF file is available
+        if (isPdfLoaded && pdfFile) {
+          formData.append('slides', pdfFile);
+        }
+        
         console.log('Adding audio recording to request:', fileName);
+        // Send the audio file to the server
+        const response = await firstValueFrom(
+          this.http.post<{
+            filePaths: { audio?: string; slides?: string },
+            response: LectureUpdateResponse
+          }>(
+            `http://localhost:8000/api/lectures/save`,
+            formData
+          )
+        );
       }
-      
+
       const pdfResponseData = this.pdfStateService.getPdfResponse();
       // Add PDF if available
       if (pdfResponseData) {
         const pdfPath = pdfResponseData?.response?.slides || '';
-        formData.append('slides', pdfPath);
+        lectureData.slides = pdfPath;
         console.log('Adding PDF to request:', pdfPath);
       }
+
+      console.log('Sending lecture data to endpoint:', lectureData);
+      console.log('Course ID:', this.courseId);
+      // Use the courseId from the component state instead of hardcoding
+      if (!this.courseId) {
+        throw new Error('Course ID is missing. Cannot submit lecture data.');
+      }
       
-      // Add transcript and metadata
-      formData.append('title', this.courseName || 'Untitled Lecture');
-      formData.append('transcript', this.chatLog.join('\n'));
-      formData.append('timestamps', JSON.stringify(this.transcriptEntries));
+      const endpoint = `http://localhost:8000/courses/${this.courseId}/${this.lectureId}`;
+      console.log('Submitting to endpoint:', endpoint);
       
-      // Optional course and lecture IDs if available
-      if (this.courseId) formData.append('courseId', this.courseId);
-      if (this.lectureId) formData.append('lectureId', this.lectureId);
+      // Show loading indicator or message
+      this.isStoppedState = false;
+      this.hasLogs = true;
       
-      console.log('Sending lecture data to backend for processing and saving', formData);
-      
-      // // API base URL - In production you should use environment configuration
-      // const apiBaseUrl = 'http://localhost:8000';
-      
-      // // Send to backend API endpoint
-      // const response = await firstValueFrom(
-      //   this.http.post<{
-      //     filePaths: { audio?: string; slides?: string },
-      //     response: LectureUpdateResponse
-      //   }>(
-      //     `${apiBaseUrl}/api/lectures/save`,
-      //     formData
-      //   )
-      // );
-      
+      // Send POST request to the endpoint
+      const response = await firstValueFrom(
+        this.http.post<LectureUpdateResponse>(endpoint, lectureData)
+      );
+
+
       // console.log('Received response from backend:', response);
       
       // if (!response || !response.response) {
@@ -237,8 +299,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       //   ai_note: response.response.ai_note || ""
       // };
       
-      // // Handle the lecture response
-      // this.handleLectureResponse(lectureResponse);
+      
+      console.log('Received response from server:', response);
+      
+      // Process the response data and pass to saved-note component
+      this.handleLectureResponse(response);
       
       // // Keep the isStoppedState true to continue showing the submit/start over buttons
       // this.isStoppedState = true;
@@ -246,6 +311,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     } catch (error) {
       console.error('Error submitting lecture materials:', error);
       alert('Failed to submit lecture materials. Please try again.');
+      this.isStoppedState = true;
     }
   }
 
