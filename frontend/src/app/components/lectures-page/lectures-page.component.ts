@@ -51,7 +51,19 @@ export class LecturesPageComponent implements OnInit {
         next: (response) => {
           this.lectures = response.lectures;
           this.isLoading = false;
-          // If there's course name info in the API response, you could set it here
+          
+          // Also fetch the course name for the breadcrumb
+          this.http.get<{ courses: { course_name: string; course_id: string }[] }>('http://localhost:8000/courses')
+            .subscribe({
+              next: (coursesResponse) => {
+                const course = coursesResponse.courses.find((c) => c.course_id === courseId);
+                this.courseName = course ? course.course_name : 'Unknown Course';
+              },
+              error: (error) => {
+                console.error('Error fetching course name:', error);
+                this.courseName = 'Unknown Course';
+              }
+            });
         },
         error: (error) => {
           console.error('Error loading lectures:', error);

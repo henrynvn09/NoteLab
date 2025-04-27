@@ -1,5 +1,6 @@
 .course-navbar {
   width: 100%;
+  height: 60px;
   padding: 1rem 2rem;
   background-color: #f0f0f0;
   border-bottom: 1px solid #ccc;
@@ -8,11 +9,92 @@
   justify-content: space-between;
   position: relative;
 
-  .title {
     font-size: 1.5rem;
     font-weight: bold;
     color: #6879AF;
+  
+    .title {
+      padding-left: 3.7rem;
+    }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    .breadcrumb-link {
+      color: #6879AF;
+      cursor: pointer;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    
+    .breadcrumb-separator {
+      color: #6879AF;
+    }
+    
+    .breadcrumb-current {
+      color: #44507F;
+      font-weight: bold;
+    }
   }
+
+
+  .left-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .back-button {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6879AF;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+
+    i {
+      font-size: 1.1rem; // Size for the icon
+    }
+
+    &:hover {
+      color: #44507F;
+      transform: translateX(-2px); // Small animation effect
+    }
+  }
+
+
+    // Compact mode styling
+    &.compact {
+      height: 50px;
+      padding: 0.75rem 1.5rem;
+      
+      .title {
+        font-size: 1.25rem;
+      }
+      
+      .back-button {
+        font-size: 1rem;
+        padding: 0.4rem;
+      }
+      
+      .breadcrumb {
+        font-size: 0.9rem;
+      }
+      
+      .profile-icon {
+        width: 30px;
+        height: 30px;
+      }
+    } 
+
 
   .navbar-actions {
     display: flex;

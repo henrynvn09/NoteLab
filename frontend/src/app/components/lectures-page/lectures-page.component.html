@@ -1,13 +1,10 @@
 <div class="lectures-page-container">
   <!-- Course navigation/header -->
-  <div class="lectures-header">
-    <button class="back-button" (click)="goBackToCourses()">
-      <span class="back-icon">←</span>
-      Back to Courses
-    </button>
-    <h1 class="course-title">{{ courseName || 'Course Lectures' }}</h1>
-    <div class="course-id">Course ID: {{ courseId }}</div>
-  </div>
+  <app-course-navbar 
+    [showBreadcrumbs]="true"
+    [courseName]="courseName"
+    [courseId]="courseId">
+  </app-course-navbar>
 
   <!-- Error message -->
   <div class="error-message" *ngIf="error">
@@ -37,9 +34,6 @@
         <div class="lecture-card" *ngFor="let lecture of lectures" (click)="viewLecture(lecture.lecture_id, lecture.lecture_name)">
           <div class="lecture-icon">📝</div>
           <div class="lecture-name">{{ lecture.lecture_name }}</div>
-          <div class="lecture-actions">
-            <button class="view-button">View</button>
-          </div>
         </div>
         
         <!-- Add new lecture card -->

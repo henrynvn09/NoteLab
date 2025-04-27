@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./left-navbar.component.scss']
 })
 export class LeftNavbarComponent implements OnInit {
+  courseId: string = '';
   currentCourseName: string = 'Loading...';
   menuOpen: boolean = false; // Added property for menu toggle
 

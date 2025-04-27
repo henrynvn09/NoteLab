@@ -36,7 +36,7 @@
 
 .save-btn {
   padding: 8px 16px;
-  background-color: #c06d7b;
+  background-color: #44507f;
   color: white;
   border: none;
   border-radius: 12px;
@@ -95,21 +95,21 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  border: 2px dashed #c06d7b;
+  border: 2px dashed #44507f;
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s;
-  color: #c06d7b;
+  color: #44507f;
 }
 
 .upload-btn:hover {
-  background-color: rgba(192, 109, 123, 0.1);
+  background-color: rgba(109, 128, 192, 0.1);
   transform: scale(1.05);
 }
 
 .upload-text {
   margin-top: 10px;
-  color: #c06d7b;
+  color: #44507f;
   font-weight: bold;
 }
 
@@ -124,8 +124,8 @@
 .fallback-btn {
   padding: 6px 12px;
   background-color: transparent;
-  border: 1px solid #c06d7b;
-  color: #c06d7b;
+  border: 1px solid #44507f;
+  color: #44507f;
   border-radius: 4px;
   cursor: pointer;
   text-decoration: none;
