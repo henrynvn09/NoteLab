@@ -11,6 +11,7 @@ import {
 import { NoteService } from '../../services/note.service';
 import { Editor, Toolbar, NgxEditorComponent } from 'ngx-editor';
 import { TimerService } from '../../services/timer.service';
+import { VoiceRecognitionService } from '../../services/voice-recognition.service';
 
 @Component({
   selector: 'app-timestamped-notes',
@@ -37,7 +38,8 @@ export class TimestampedNotesComponent implements OnInit, OnDestroy, AfterViewIn
 
   constructor(
     private noteService: NoteService,
-    private injector: Injector
+    private injector: Injector,
+    private voiceService: VoiceRecognitionService
   ) {
     this.timerService = this.injector.get(TimerService);
   }
@@ -111,20 +113,33 @@ saveTitle() {
     this.noteService.setCurrentNote(value);
   }
   
+  // Checks if voice recognition service has an active transcript
+  isVoiceRecognitionActive(): boolean {
+    // Try to get transcript time from voice service
+    const transcriptTime = this.voiceService.getCurrentTranscriptTime();
+    // If transcript time is greater than 0, voice recognition is active
+    return transcriptTime > 0;
+  }
+  
   getCurrentFormattedTimestamp(): string {
-    // Get the current time from either the audio player or recording timer
+    // Get the current time from either the audio player, voice recognition service, or recording timer
     let timestamp = 0;
     const audioElement = this.noteService.getAudioElement();
     
     if (audioElement) {
       timestamp = audioElement.currentTime;
+    } else if (this.isVoiceRecognitionActive()) {
+      // Get time from voice recognition service if it's active
+      timestamp = this.voiceService.getCurrentTranscriptTime();
+      console.log('Using voice recognition timestamp:', timestamp);
     } else if (this.isRecording) {
+      // Fall back to timer service if no transcript time is available
       timestamp = this.timerService.getCurrentSeconds();
+      console.log('Using timer service timestamp:', timestamp);
     }
     
-    const minutes = Math.floor(timestamp / 60);
-    const seconds = Math.floor(timestamp % 60);
-    let formattedTime = `[${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // Format time using VTT format
+    let formattedTime = `[${this.formatTime(timestamp)}`;
     
     // Try to determine if PDF is loaded by checking the note service
     try {
@@ -140,6 +155,15 @@ saveTitle() {
     
     formattedTime += `] `;
     return formattedTime;
+  }
+
+  formatTime(seconds: number): string {
+    const date = new Date(seconds * 1000);
+    const hh = String(date.getUTCHours()).padStart(2, '0');
+    const mm = String(date.getUTCMinutes()).padStart(2, '0');
+    const ss = String(date.getUTCSeconds()).padStart(2, '0');
+    const ms = String(date.getUTCMilliseconds()).padStart(3, '0');
+    return `${hh}:${mm}:${ss}.${ms}`;
   }
 
   downloadNote() {
