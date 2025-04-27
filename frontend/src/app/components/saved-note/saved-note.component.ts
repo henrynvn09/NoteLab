@@ -4,6 +4,7 @@ import { NoteService, TimestampedNote } from '../../services/note.service';
 import { ActivatedRoute } from '@angular/router';
 import { LectureDataService, LectureUpdateResponse } from '../../services/lecture-data.service';
 import { Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 interface TranscriptLine {
   startTime: number;
@@ -55,7 +56,8 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
     private audioRecordingService: AudioRecordingService,
     private noteService: NoteService,
     private route: ActivatedRoute,
-    private lectureDataService: LectureDataService
+    private lectureDataService: LectureDataService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -63,6 +65,12 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
       this.courseId = params.get('courseId');
       this.lectureId = params.get('lectureId');
       console.log('Saved note initialized with course:', this.courseId, 'and lecture:', this.lectureId);
+      
+      // If we have course and lecture IDs, fetch the data from API
+      if (this.courseId && this.lectureId) {
+        console.log('Fetching lecture data...', this.courseId, this.lectureId);
+        this.fetchLectureData(this.courseId, this.lectureId);
+      }
     });
     
     // Subscribe to lecture data
@@ -71,6 +79,33 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
         console.log('Received lecture data:', data);
         this.lectureData = data;
         this.processLectureData(data);
+      }
+    });
+  }
+  
+  /**
+   * Fetch lecture data from the backend API
+   * @param courseId The course ID
+   * @param lectureId The lecture ID
+   */
+  private fetchLectureData(courseId: string, lectureId: string): void {
+    const url = `http://localhost:8000/courses/${courseId}/${lectureId}`;
+    
+    console.log(`Fetching lecture data from ${url}`);
+    
+    this.http.get<LectureUpdateResponse>(url).subscribe({
+      next: (response) => {
+        console.log('API response received:', response);
+        
+        // Store the response data in the shared service
+        this.lectureDataService.setLectureData(response);
+        
+        // Process the data directly as well
+        this.lectureData = response;
+        this.processLectureData(response);
+      },
+      error: (error) => {
+        console.error('Error fetching lecture data:', error);
       }
     });
   }
@@ -89,16 +124,17 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
     if (data.transcript) {
       // In a real implementation, you would parse the transcript into transcript lines
       // For now, we'll just add a simple entry
-      this.transcript = [
-        { startTime: 0, text: 'Transcript data received: ' + data.transcript.substring(0, 30) + '...' }
-      ];
+      this.transcript = data.transcript.split('\n').map((line, index) => ({
+        startTime: index * 5, // Placeholder for start time
+        text: line
+      }));
     }
     
     // If there are slides, update the PDF viewer
     if (data.slides) {
-      // In a real implementation, you would convert the slides data to a PDF object
-      // For now, we'll just log it
-      console.log('Received slides data:', data.slides);
+      // Set the PDF source from the slides data in the response
+      this.pdfSrc = data.slides;
+      console.log('Set PDF source from response:', this.pdfSrc);
     }
     
     // Similarly for recording data
@@ -106,6 +142,7 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
       // In a real implementation, you would set the audio source
       // For now, we'll just log it
       console.log('Received recording data:', data.recording);
+      console.log('Set audio source from response:', data.recording);
     }
   }
   

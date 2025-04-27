@@ -143,36 +143,80 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     console.log('Submitting transcript and lecture materials...');
     
     try {
-      // Prepare the data to be sent
-      const lectureData = {
-        title: this.courseName || 'Untitled Lecture',
-        notes: this.chatLog.join('\n'),
-        timestamps: this.transcriptEntries,
-        pdf: null // We would include PDF data here if available
-      };
+      // Get audio recording from voice service
+      const audioData = this.voiceService.getAudioData();
       
-      console.log('Sending lecture data:', lectureData);
+      // Prepare form data with all materials
+      const formData = new FormData();
       
-      // Simulate a server call with a 5 second delay as requested
-      const response = await new Promise<LectureUpdateResponse>((resolve) => {
-        setTimeout(() => {
-          // Temporary response structure
-          const tempResponse: LectureUpdateResponse = {
-            note: "",
-            slides: "",
-            recording: "",
-            transcript: "",
-            ai_note: ""
-          };
-          resolve(tempResponse);
-        }, 5000); // 5 second delay
+      // Add audio recording if available
+      if (audioData && audioData.blob) {
+        const fileName = `lecture_${this.courseId || 'unknown'}_${Date.now()}.webm`;
+        formData.append('audio', audioData.blob, fileName);
+        console.log('Adding audio recording to request:', fileName);
+      }
+      
+      // Add PDF if available (assuming there's a PDF property in the component)
+      if ((this as any).pdfData && (this as any).pdfData.blob) {
+        const pdfFileName = `lecture_${this.courseId || 'unknown'}_slides_${Date.now()}.pdf`;
+        formData.append('slides', (this as any).pdfData.blob, pdfFileName);
+        console.log('Adding slides to request:', pdfFileName);
+      }
+      
+      // Add transcript and metadata
+      formData.append('title', this.courseName || 'Untitled Lecture');
+      formData.append('transcript', this.chatLog.join('\n'));
+      formData.append('timestamps', JSON.stringify(this.transcriptEntries));
+      
+      // Optional course and lecture IDs if available
+      if (this.courseId) formData.append('courseId', this.courseId);
+      if (this.lectureId) formData.append('lectureId', this.lectureId);
+      
+      console.log('Sending lecture data to backend for processing and saving');
+      
+      // API base URL - In production you should use environment configuration
+      const apiBaseUrl = 'http://localhost:8000';
+      
+      // Send to backend API endpoint
+      const response = await firstValueFrom(
+        this.http.post<{
+          filePaths: { audio?: string; slides?: string },
+          response: LectureUpdateResponse
+        }>(
+          `${apiBaseUrl}/api/lectures/save`,
+          formData
+        )
+      );
+      
+      console.log('Received response from backend:', response);
+      
+      if (!response || !response.response) {
+        throw new Error('Invalid response format from server');
+      }
+      
+      // Create a full URL for the files using the base URL
+      const baseUrl = apiBaseUrl;
+      const audioUrl = response.filePaths?.audio ? 
+          `${baseUrl}${response.response.recording}` : '';
+      const slidesUrl = response.filePaths?.slides ? 
+          `${baseUrl}${response.response.slides}` : '';
+      
+      console.log('Files accessible at:', {
+        audio: audioUrl,
+        slides: slidesUrl
       });
       
-      console.log('Received response:', response);
+      // Process the lecture data for the frontend
+      const lectureResponse: LectureUpdateResponse = {
+        note: response.response.note || "",
+        slides: slidesUrl,
+        recording: audioUrl,
+        transcript: this.chatLog.join('\n'),
+        ai_note: response.response.ai_note || ""
+      };
       
-      // Process the response data and pass to saved-note component
-      // For now, we'll just log it
-      this.handleLectureResponse(response);
+      // Handle the lecture response
+      this.handleLectureResponse(lectureResponse);
       
       // Keep the isStoppedState true to continue showing the submit/start over buttons
       this.isStoppedState = true;
@@ -182,7 +226,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       alert('Failed to submit lecture materials. Please try again.');
     }
   }
-  
+
   // Handle the lecture update response
   private handleLectureResponse(response: LectureUpdateResponse): void {
     // Store the lecture data in the shared service

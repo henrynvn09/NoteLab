@@ -1,16 +1,19 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr, Field
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
+import shutil
+import os
+import json
 
 # Config
-import os
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -128,6 +131,30 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+# File storage paths
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+AUDIO_DIR = os.path.join(UPLOAD_DIR, "audio")
+SLIDES_DIR = os.path.join(UPLOAD_DIR, "slides")
+
+# Create directories if they don't exist
+os.makedirs(AUDIO_DIR, exist_ok=True)
+os.makedirs(SLIDES_DIR, exist_ok=True)
+
+# File handling helpers
+async def save_file(file: UploadFile, directory: str) -> str:
+    """Save an uploaded file to a specified directory and return the file path"""
+    # Create a unique filename based on timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    file_extension = os.path.splitext(file.filename)[1]
+    safe_filename = f"{timestamp}{file_extension}"
+    file_path = os.path.join(directory, safe_filename)
+    
+    # Write the file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    return file_path
 
 # Routes
 @app.post("/register", response_model=UserOut)
@@ -335,3 +362,113 @@ async def get_lecture_materials(
         transcript=materials.get("transcript", ""),
         ai_note=materials.get("ai_note", "")
     )
+
+@app.post("/api/lectures/save")
+async def save_lecture_files(
+    audio: Optional[UploadFile] = File(None),
+    slides: Optional[UploadFile] = File(None),
+    title: str = Form(...),
+    transcript: str = Form(...),
+    timestamps: Optional[str] = Form(None),
+    courseId: Optional[str] = Form(None),
+    lectureId: Optional[str] = Form(None),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Save lecture files (audio recording and slides) to the server.
+    Returns file paths and lecture data.
+    """
+    file_paths = {}
+    response_data = LectureMaterial()
+    
+    try:
+        # Save audio file if provided
+        audio_path = None
+        if audio:
+            audio_path = await save_file(audio, AUDIO_DIR)
+            file_paths["audio"] = audio_path
+            # Create URL path for frontend
+            audio_url = f"/uploads/audio/{os.path.basename(audio_path)}"
+            response_data.recording = audio_url
+        
+        # Save slides file if provided
+        slides_path = None
+        if slides:
+            slides_path = await save_file(slides, SLIDES_DIR)
+            file_paths["slides"] = slides_path
+            # Create URL path for frontend
+            slides_url = f"/uploads/slides/{os.path.basename(slides_path)}"
+            response_data.slides = slides_url
+        
+        # Process transcript
+        response_data.transcript = transcript
+        
+        # Process timestamps if provided
+        timestamp_data = []
+        if timestamps:
+            try:
+                timestamp_data = json.loads(timestamps)
+            except json.JSONDecodeError:
+                print("Could not parse timestamps JSON")
+        
+        # Create or update lecture in database if course ID is provided
+        if courseId:
+            if lectureId:
+                # Update existing lecture
+                try:
+                    lecture_oid = ObjectId(lectureId)
+                    
+                    # Check if lecture exists
+                    lecture = await lectures_collection.find_one({
+                        "_id": lecture_oid,
+                        "course_id": courseId
+                    })
+                    
+                    if lecture:
+                        # Update the lecture materials
+                        await lectures_collection.update_one(
+                            {"_id": lecture_oid},
+                            {"$set": {
+                                "materials": {
+                                    "note": lecture.get("materials", {}).get("note", ""),
+                                    "recording": response_data.recording,
+                                    "slides": response_data.slides,
+                                    "transcript": response_data.transcript,
+                                    "ai_note": lecture.get("materials", {}).get("ai_note", "")
+                                }
+                            }}
+                        )
+                except Exception as e:
+                    print(f"Failed to update lecture in database: {str(e)}")
+            else:
+                # Create new lecture
+                try:
+                    lecture_data = {
+                        "lecture_name": title,
+                        "course_id": courseId,
+                        "materials": {
+                            "note": "",
+                            "recording": response_data.recording,
+                            "slides": response_data.slides,
+                            "transcript": response_data.transcript,
+                            "ai_note": ""
+                        },
+                        "timestamps": timestamp_data
+                    }
+                    
+                    result = await lectures_collection.insert_one(lecture_data)
+                    lectureId = str(result.inserted_id)
+                except Exception as e:
+                    print(f"Failed to create lecture in database: {str(e)}")
+        
+        # Return file paths and response data
+        return {
+            "filePaths": file_paths,
+            "response": response_data.dict()
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save lecture files: {str(e)}")
+
+# Mount static file serving for uploads
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
