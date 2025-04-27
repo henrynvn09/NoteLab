@@ -5,3 +5,4 @@ __pycache__/
 *.webm
 *.pdf
 .env
+text_files/
