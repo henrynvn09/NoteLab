@@ -2,6 +2,8 @@ import { Component, OnDestroy, ViewChild, ElementRef, OnInit } from '@angular/co
 import { AudioRecordingService } from '../../services/audio-recording.service';
 import { NoteService, TimestampedNote } from '../../services/note.service';
 import { ActivatedRoute } from '@angular/router';
+import { LectureDataService, LectureUpdateResponse } from '../../services/lecture-data.service';
+import { Subscription } from 'rxjs';
 
 interface TranscriptLine {
   startTime: number;
@@ -42,10 +44,15 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
   ];
   currentLineIndex: number = 0;
 
+  // Properties to store lecture data
+  lectureData: LectureUpdateResponse | null = null;
+  private lectureDataSubscription: Subscription | null = null;
+
   constructor(
     private audioRecordingService: AudioRecordingService,
     private noteService: NoteService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private lectureDataService: LectureDataService
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +61,49 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
       this.lectureId = params.get('lectureId');
       console.log('Saved note initialized with course:', this.courseId, 'and lecture:', this.lectureId);
     });
+    
+    // Subscribe to lecture data
+    this.lectureDataSubscription = this.lectureDataService.lectureData$.subscribe(data => {
+      if (data) {
+        console.log('Received lecture data:', data);
+        this.lectureData = data;
+        this.processLectureData(data);
+      }
+    });
+  }
+  
+  /**
+   * Process the lecture data received from the lecture data service
+   * @param data The lecture data to process
+   */
+  private processLectureData(data: LectureUpdateResponse): void {
+    // For now, we'll just set the data in the note service
+    if (data.note) {
+      this.noteService.setCurrentNote(data.note);
+    }
+    
+    // If there's transcript data, update our transcript array
+    if (data.transcript) {
+      // In a real implementation, you would parse the transcript into transcript lines
+      // For now, we'll just add a simple entry
+      this.transcript = [
+        { startTime: 0, text: 'Transcript data received: ' + data.transcript.substring(0, 30) + '...' }
+      ];
+    }
+    
+    // If there are slides, update the PDF viewer
+    if (data.slides) {
+      // In a real implementation, you would convert the slides data to a PDF object
+      // For now, we'll just log it
+      console.log('Received slides data:', data.slides);
+    }
+    
+    // Similarly for recording data
+    if (data.recording) {
+      // In a real implementation, you would set the audio source
+      // For now, we'll just log it
+      console.log('Received recording data:', data.recording);
+    }
   }
   
   ngAfterViewInit() {
@@ -194,6 +244,11 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
     // Clean up PDF URL if it exists
     if (this.pdfSrc) {
       URL.revokeObjectURL(this.pdfSrc);
+    }
+
+    // Unsubscribe from lecture data subscription
+    if (this.lectureDataSubscription) {
+      this.lectureDataSubscription.unsubscribe();
     }
   }
 }
