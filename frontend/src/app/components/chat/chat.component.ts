@@ -171,6 +171,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }).join('\n');
     const vttContent = vttHeader + vttBody;
     
+    
     // Plain text format (chat log)
     const chatLogContent = this.chatLog.join('\n');
     
@@ -179,7 +180,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const lectureData = {
         title: noteTitle,
         transcript: chatLogContent,
-        transcriptVTT: vttContent,
+        transcriptvtt: vttContent,
         // slides: isPdfLoaded && pdfFile ? pdfFile : null,
         slides:"",
         userNotes: currentNote,// Include user notes if available
