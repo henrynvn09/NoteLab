@@ -9,7 +9,7 @@ import { CoursePageComponent } from './components/CoursePage/coursepage.componen
 import { LecturesPageComponent } from './components/lectures-page/lectures-page.component';
 
 const routes: Routes = [
-  // { path: '', component: AudioRecorderComponent, canActivate: [authGuard] },
+  { path: '', component: LoginComponent, canActivate: [authGuard] },
   { path: 'courses', component: CoursePageComponent, canActivate: [authGuard] },
   { path: 'courses/:courseId', component: LecturesPageComponent, canActivate: [authGuard] },
   { path: 'courses/:courseId/:lectureId', component: AudioRecorderComponent, canActivate: [authGuard] },
