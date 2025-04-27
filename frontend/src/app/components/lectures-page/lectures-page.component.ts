@@ -78,7 +78,7 @@ export class LecturesPageComponent implements OnInit {
     if (lectureName) {
       this.noteService.setNoteTitle(lectureName);
     }
-    this.router.navigate(['/courses', this.courseId, lectureId]);
+    this.router.navigate(['/courses', this.courseId, lectureId,'generated-note']);
   }
 
   goBackToCourses(): void {
