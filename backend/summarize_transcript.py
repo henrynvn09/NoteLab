@@ -55,40 +55,6 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
         <h2>[hh:mm:ss] SUBJECT SUBHEADING 2</h2>
         <h2>[hh:mm:ss] SUBJECT SUBHEADING N</h2>
     """
-
-    timestamped_notes_prompt = """
-    You are a student writing extremely detailed lecture notes.
-
-    TASK:
-    - Carefully read the provided lecture transcript.
-    - Expand the existing notes with *additional* detailed points if the transcript mentions new information.
-    - Always preserve the original user notes — do NOT remove, reword, or replace them.
-    - Insert new points as additional bullet points (<li>) under the correct <h2> subheading.
-    - If a new idea from the transcript fits none of the existing subheadings, skip it. (DO NOT create new subheadings unless explicitly told.)
-    - Maintain the professor's natural tone — notes should sound academic and precise.
-    - Start every bullet point with a timestamp [hh:mm:ss].
-    - Follow the output format EXACTLY:
-
-    <h1> Heading </h1>
-        <h2> Subheading </h2>
-            <ul>
-                <li>[hh:mm:ss] existing bullet 1</li>
-                <li>[hh:mm:ss] existing bullet 2</li>
-                <li>[hh:mm:ss] new detailed bullet from transcript</li>
-                <li>[hh:mm:ss] new detailed bullet from transcript</li>
-            </ul>
-
-    Important:
-    - Do NOT remove or change any original bullet points.
-    - Add new bullets only if they add meaningful detail based on the transcript.
-    - Stay realistic and academic — this should feel like well-organized real student notes.
-
-    Input:
-    - (1) A timestamped outline with user notes.
-    - (2) A full lecture transcript.
-
-    Your goal is to add additional detailed notes intelligently into the existing structure.
-    """
     
     user_note_prompt = """
         You are a student organizing lecture notes.
@@ -156,6 +122,42 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
         output.write(user_notes_outline_response.text)    
 
     print("Finished formatting user notes!", file=sys.stderr)
+
+    timestamped_notes_prompt = """
+    You are a student writing extremely detailed lecture notes.
+
+    TASK:
+    - Carefully read the provided lecture transcript.
+    - Expand the existing notes with *additional* detailed points if the transcript mentions new information.
+    - Always preserve the original user notes — do NOT remove, reword, or replace them.
+    - Insert new points as additional bullet points (<li>) under the correct <h2> subheading.
+    - If a new idea from the transcript fits none of the existing subheadings, skip it. (DO NOT create new subheadings unless explicitly told.)
+    - Maintain the professor's natural tone — notes should sound academic and precise.
+    - Start every bullet point with a timestamp [hh:mm:ss].
+    - Follow the output format EXACTLY:
+
+    <h1> Heading </h1>
+        <h2> Subheading </h2>
+            <ul>
+                <li>[hh:mm:ss] existing bullet 1</li>
+                <li>[hh:mm:ss] existing bullet 2</li>
+                <li>[hh:mm:ss] new detailed bullet from transcript</li>
+                <li>[hh:mm:ss] new detailed bullet from transcript</li>
+            </ul>
+
+    Important:
+    - Do NOT remove or change any original bullet points.
+    - Add new bullets only if they add meaningful detail based on the transcript.
+    - Stay realistic and academic — this should feel like well-organized real student notes.
+
+    Input:
+    - (1) A timestamped outline with user notes.
+    - (2) A full lecture transcript.
+
+    Your goal is to add additional detailed notes intelligently into the existing structure.
+    Here is the timestamped outline with user notes:
+    {user_notes_outline_response.text}
+    """
 
     timestamped_notes = client.models.generate_content(
         model="gemini-2.0-flash", contents=[timestamped_notes_prompt, timestamped_transcript]
@@ -422,5 +424,5 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
     
     print("Successfully completed notes!", file=sys.stderr)
 
-# if __name__ == '__main__':
-#     generate_notes('./text_files/user_notes.html', './text_files/transcript2.txt', './text_files/transcript2.vtt')
+if __name__ == '__main__':
+    generate_notes('./text_files/user_notes.html', './text_files/transcript2.txt', './text_files/transcript2.vtt')
