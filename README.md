@@ -128,6 +128,11 @@ We have ambitious plans for NoteLab's future:
 
 NoteLab was created with passion by a team of students who understand the challenges of modern learning environments.
 
+
+## Miscellaneous
+
+![design v2](https://github.com/user-attachments/assets/dbf0dfb6-1583-4b79-8505-1407350fe3c0)
+
 ---
 
 For questions or feedback, please open an issue in this repository.
