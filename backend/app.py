@@ -82,15 +82,20 @@ class LectureOut(LectureBase):
 
 class NoteCreate(BaseModel):
     title: str
-    user_note: str = ""
-    recording: str = ""
     transcript: str = ""
+    transcriptvtt: str = ""
+    slides: str = ""
+    userNotes: str = ""
+    recording: str = ""
+    ai_note: str = ""
 
 class LectureMaterial(BaseModel):
-    note: Optional[str] = ""
-    slides: Optional[str] = ""
-    recording: Optional[str] = ""
+    title: Optional[str] = ""
     transcript: Optional[str] = ""
+    transcriptvtt: Optional[str] = ""
+    slides: Optional[str] = ""
+    userNotes: Optional[str] = ""
+    recording: Optional[str] = ""
     ai_note: Optional[str] = ""
 
 class CourseList(BaseModel):
@@ -238,7 +243,7 @@ async def create_note(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Create a new note entry for a course with title, user_note, recording and transcript
+    Create a new note entry for a course with all lecture material fields
     Returns the lecture_id of the newly created entry
     """
     try:
@@ -251,15 +256,18 @@ async def create_note(
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     
-    # Create lecture entry with the note content
+    # Create lecture entry with all the note content
     lecture_data = {
         "lecture_name": note.title,
         "course_id": course_id,
         "materials": {
-            "note": note.user_note,
-            "recording": note.recording,
+            "title": note.title,
             "transcript": note.transcript,
-            "slides": ""
+            "transcriptvtt": note.transcriptvtt,
+            "slides": note.slides,
+            "userNotes": note.userNotes,
+            "recording": note.recording,
+            "ai_note": note.ai_note
         }
     }
     
@@ -276,7 +284,7 @@ async def update_lecture_materials(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Update lecture materials (notes, slides, recording, transcript)
+    Update lecture materials (title, transcript, slides, userNotes, recording, ai_note)
     """
     try:
         lecture_oid = ObjectId(lecture_id)
@@ -293,9 +301,25 @@ async def update_lecture_materials(
         raise HTTPException(status_code=404, detail="Lecture not found or doesn't belong to specified course")
     
     # Update the materials
+    update_data = {
+        "materials.title": materials.title,
+        "materials.transcript": materials.transcript,
+        "materials.transcriptvtt": materials.transcriptvtt,
+        "materials.slides": materials.slides,
+        "materials.userNotes": materials.userNotes,
+        "materials.recording": materials.recording,
+        "materials.ai_note": materials.ai_note
+    }
+    
+    # Remove None values
+    update_data = {k: v for k, v in update_data.items() if v is not None}
+    
+    if not update_data:
+        return {"message": "No changes to update"}
+    
     update_result = await lectures_collection.update_one(
         {"_id": lecture_oid},
-        {"$set": {"materials": materials.dict()}}
+        {"$set": update_data}
     )
     
     if update_result.modified_count == 0:
@@ -310,7 +334,7 @@ async def get_lecture_materials(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Get lecture materials (notes, slides, recording, transcript)
+    Get lecture materials (title, transcript, slides, userNotes, recording, ai_note)
     """
     try:
         lecture_oid = ObjectId(lecture_id)
@@ -329,9 +353,11 @@ async def get_lecture_materials(
     # Return the materials
     materials = lecture.get("materials", {})
     return LectureMaterial(
-        note=materials.get("note", ""),
-        slides=materials.get("slides", ""),
-        recording=materials.get("recording", ""),
+        title=materials.get("title", ""),
         transcript=materials.get("transcript", ""),
+        transcriptvtt=materials.get("transcriptvtt", ""),
+        slides=materials.get("slides", ""),
+        userNotes=materials.get("userNotes", ""),
+        recording=materials.get("recording", ""),
         ai_note=materials.get("ai_note", "")
     )

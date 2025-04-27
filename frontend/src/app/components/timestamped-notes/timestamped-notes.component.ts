@@ -46,6 +46,12 @@ export class TimestampedNotesComponent implements OnInit, OnDestroy, AfterViewIn
 
   ngOnInit(): void {
     this.editor = new Editor({ keyboardShortcuts: true });
+    
+    // Initialize note title from service if available
+    const savedTitle = this.noteService.getNoteTitle();
+    if (savedTitle && savedTitle !== 'Untitled Note') {
+      this.noteTitle = savedTitle;
+    }
   }
 
   ngAfterViewInit(): void {
@@ -55,16 +61,18 @@ export class TimestampedNotesComponent implements OnInit, OnDestroy, AfterViewIn
   ngOnDestroy(): void {
     this.editor.destroy();
   }
-noteTitle: string = 'Timestamped Notes';
-isEditingTitle: boolean = false; // Start in text mode
+  
+  noteTitle: string = 'Untitled Note'; // Changed to match NoteService default
+  isEditingTitle: boolean = false; // Start in text mode
 
-editTitle() {
-  this.isEditingTitle = true;
-}
+  editTitle() {
+    this.isEditingTitle = true;
+  }
 
-saveTitle() {
-  this.isEditingTitle = false;
-}
+  saveTitle() {
+    this.isEditingTitle = false;
+    this.noteService.setNoteTitle(this.noteTitle);
+  }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
@@ -147,7 +155,7 @@ saveTitle() {
       const pdfLoaded = (this.noteService as any).pdfLoaded;
       if (pdfLoaded) {
         const slideNumber = (this.noteService as any).currentSlideNumber;
-        formattedTime += ` | Slide ${slideNumber}`;
+        // formattedTime += ` | Slide ${slideNumber}`;
       }
     } catch (e) {
       // If we can't access it, just use the basic format

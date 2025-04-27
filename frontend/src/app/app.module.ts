@@ -19,6 +19,7 @@ import { LeftNavbarComponent } from './components/LeftNavBar/left-navbar.compone
 import { CourseNavbarComponent } from './components/CourseNavBar/coursenavbar.component';
 import { CoursePageComponent } from './components/CoursePage/coursepage.component';
 import { LecturesPageComponent } from './components/lectures-page/lectures-page.component';
+import { SavedNoteComponent } from './components/saved-note/saved-note.component';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { LecturesPageComponent } from './components/lectures-page/lectures-page.
     LeftNavbarComponent,
     CourseNavbarComponent,
     CoursePageComponent,
-    LecturesPageComponent
+    LecturesPageComponent,
+    SavedNoteComponent
   ],
   imports: [
     BrowserModule,
