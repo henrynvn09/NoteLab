@@ -23,6 +23,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   isRecording = false;
   isPaused = false;
   hasLogs = false;
+  isStoppedState = false;
   
   // Flag to track when new content is added
   private shouldScrollToBottom = false;
@@ -94,12 +95,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.liveTranscript = '';
     this.voiceService.startListening();
     this.isRecording = true;
+    this.isStoppedState = false;
   }
 
   stop(): void {
     this.voiceService.stopListening();
     this.isRecording = false;
     this.isPaused = false;
+    this.isStoppedState = true;
+    this.hasLogs = true;
   }
 
   pause(): void {
@@ -112,6 +116,24 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.hasLogs = false;
     this.voiceService.resumeListening();
     this.isPaused = false;
+  }
+
+  // New methods for Submit and Start Over buttons
+  submitTranscript(): void {
+    // For now, this is a null submit as requested
+    // This is where you would implement the submission logic in the future
+    console.log('Transcript submitted:', this.chatLog);
+    
+    // Keep the isStoppedState true to continue showing the submit/start over buttons
+  }
+
+  startOver(): void {
+    // Reset everything to initial state
+    this.isStoppedState = false;
+    this.hasLogs = false;
+    this.chatLog = [];
+    this.transcriptEntries = [];
+    this.liveTranscript = '';
   }
 
   ngOnDestroy(): void {

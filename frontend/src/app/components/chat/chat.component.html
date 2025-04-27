@@ -9,8 +9,8 @@
   </div>
 
   <div class="button-container">
-    <!-- Initial and after-stop state -->
-    <div class="button-row" *ngIf="!isRecording && !isPaused">
+    <!-- Initial state -->
+    <div class="button-row" *ngIf="!isRecording && !isPaused && !isStoppedState">
       <div class="button-placeholder"></div>
       <button class="focus start" (click)="start()">Start</button>
       <button class="dud download" *ngIf="hasLogs" (click)="downloadChatLog()">Download Logs</button>
@@ -28,6 +28,13 @@
       <button class="dud stop" (click)="stop()">Stop</button>
       <button class="focus resume" (click)="resume()">Resume</button>
       <button class="dud download" *ngIf="hasLogs" (click)="downloadChatLog()">Download Logs</button>
+    </div>
+    
+    <!-- Post-recording state (after Stop is pressed) -->
+    <div class="button-row" *ngIf="isStoppedState">
+      <div class="button-placeholder"></div>
+      <button class="focus start" (click)="submitTranscript()">Submit</button>
+      <button class="dud download" (click)="startOver()">Start Over</button>
     </div>
   </div>
 </div>
