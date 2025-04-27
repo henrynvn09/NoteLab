@@ -1,0 +1,71 @@
+<div class="file-retriever-container">
+  <div class="section-header">
+    <h2>Lecture Files</h2>
+    <p *ngIf="courseId">Course ID: {{ courseId }}</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading files...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Audio Files Section -->
+  <div class="section-container" *ngIf="!isLoading && audioFiles.length > 0">
+    <h3>Audio Recordings</h3>
+    <div class="files-grid">
+      <div class="file-card" *ngFor="let file of audioFiles">
+        <div class="file-icon">
+          <i class="fas fa-file-audio"></i>
+        </div>
+        <div class="file-details">
+          <div class="file-name">{{ file.fileName }}</div>
+          <div class="file-date">{{ file.uploadDate | date:'medium' }}</div>
+        </div>
+        <div class="file-actions">
+          <button (click)="loadFile(file)" class="btn btn-primary">
+            <i class="fas fa-play"></i> Play
+          </button>
+          <button (click)="downloadFile(file)" class="btn btn-secondary">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF Files Section -->
+  <div class="section-container" *ngIf="!isLoading && pdfFiles.length > 0">
+    <h3>PDF Slides</h3>
+    <div class="files-grid">
+      <div class="file-card" *ngFor="let file of pdfFiles">
+        <div class="file-icon">
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <div class="file-details">
+          <div class="file-name">{{ file.fileName }}</div>
+          <div class="file-date">{{ file.uploadDate | date:'medium' }}</div>
+        </div>
+        <div class="file-actions">
+          <button (click)="loadFile(file)" class="btn btn-primary">
+            <i class="fas fa-eye"></i> View
+          </button>
+          <button (click)="downloadFile(file)" class="btn btn-secondary">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state message -->
+  <div class="empty-state" *ngIf="!isLoading && audioFiles.length === 0 && pdfFiles.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-folder-open"></i>
+    </div>
+    <p>No files found for this course.</p>
+  </div>
+</div>

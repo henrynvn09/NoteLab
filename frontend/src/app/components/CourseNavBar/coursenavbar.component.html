@@ -1,11 +1,24 @@
-<div class="course-navbar">
-  <div class="title">
-    My Courses
+<div class="course-navbar" [ngClass]="{'compact': size === 'compact'}">
+  <div class="left-section">
+    <!-- Back button when in a course -->
+    <button *ngIf="showBreadcrumbs" class="back-button" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> <!-- Font Awesome icon -->
+    </button>
+
+    <!-- Title or breadcrumb navigation -->
+    <div class="title" *ngIf="!showBreadcrumbs">
+      My Courses
+    </div>
+
+    <!-- Breadcrumb navigation -->
+    <div class="breadcrumb" *ngIf="showBreadcrumbs">
+      <span class="breadcrumb-link" (click)="goBack()">My Courses</span>
+      <span class="breadcrumb-separator">›</span>
+      <span class="breadcrumb-current">{{ courseName }}</span>
+    </div>
   </div>
 
   <div class="navbar-actions">
-
-
     <div class="profile-icon" (click)="toggleMenu()">
       <img src="assets/profile-icon.svg" alt="Profile" />
     </div>

@@ -1,20 +1,6 @@
-<div class="left-navbar">
-  <!-- Breadcrumb part -->
-  <div class="breadcrumb">
-    <span class="clickable" (click)="goToChat()">My Courses</span>
-    <span class="separator">›</span>
-    <span class="current-course">{{ currentCourseName }}</span>
-  </div>
-
-  <!-- Profile Icon with Menu -->
-  <div class="profile-menu-container">
-    <div class="profile-icon" (click)="toggleMenu()">
-      <img src="assets/profile-icon.svg" alt="Profile" />
-    </div>
-
-    <div class="profile-dropdown" *ngIf="menuOpen">
-      <button (click)="goHome()">Home</button>
-      <button (click)="logout($event)">Logout</button>
-    </div>
-  </div>
-</div>
+<app-course-navbar
+  [showBreadcrumbs]="true"
+  [courseName]="currentCourseName"
+  [courseId]="courseId"
+  [size]="'compact'">
+</app-course-navbar>

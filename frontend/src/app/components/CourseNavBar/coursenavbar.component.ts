@@ -1,6 +1,6 @@
-import { Component, ElementRef, HostListener } from '@angular/core';
+import { Component, ElementRef, HostListener, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/services/auth.service'; // adjust if needed
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-course-navbar',
@@ -8,6 +8,13 @@ import { AuthService } from 'src/app/services/auth.service'; // adjust if needed
   styleUrls: ['./coursenavbar.component.scss']
 })
 export class CourseNavbarComponent {
+  @Input() showBreadcrumbs = false;
+  @Input() courseName: string = '';
+  @Input() courseId: string = '';
+  @Input() size: 'default' | 'compact' = 'default';
+
+
+  
   menuOpen = false;
 
   constructor(
@@ -23,6 +30,10 @@ export class CourseNavbarComponent {
   goHome() {
     this.router.navigate(['/home']);
     this.menuOpen = false;
+  }
+
+  goBack() {
+    this.router.navigate(['/courses']);
   }
 
   logout(event: Event) {

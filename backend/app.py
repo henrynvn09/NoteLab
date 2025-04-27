@@ -406,6 +406,8 @@ async def save_lecture_files(
     """
     file_paths = {}
     response_data = LectureMaterial()
+
+    print("Received files:", audio, slides)
     
     try:
         # Save audio file if provided
