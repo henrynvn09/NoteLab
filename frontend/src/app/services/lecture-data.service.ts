@@ -3,11 +3,14 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 // Interface for lecture data response
 export interface LectureUpdateResponse {
-  note: string;
-  slides: string;
-  recording: string;
-  transcript: string;
-  ai_note: string;
+  title?: string;
+  note?: string;
+  slides?: string;
+  recording?: string;
+  transcript?: string;
+  transcriptvtt?: string;
+  userNotes?: string;
+  ai_note?: string;
 }
 
 @Injectable({

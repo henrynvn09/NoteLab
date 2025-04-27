@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NoteService } from 'src/app/services/note.service';
 
 interface Lecture {
   lecture_name: string;
@@ -26,7 +27,8 @@ export class LecturesPageComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private noteService: NoteService
   ) { }
 
   ngOnInit(): void {
@@ -61,6 +63,9 @@ export class LecturesPageComponent implements OnInit {
 
   viewLecture(lectureId: string, lectureName: string): void {
     console.log('View lecture:', lectureId, lectureName);
+    if (lectureName) {
+      this.noteService.setNoteTitle(lectureName);
+    }
     this.router.navigate(['/courses', this.courseId, lectureId]);
   }
 
@@ -87,6 +92,9 @@ export class LecturesPageComponent implements OnInit {
         .subscribe({
           next: (response) => {
             console.log('New lecture created with ID:', response.lecture_id);
+            if(lectureName) {
+              this.noteService.setNoteTitle(lectureName);
+            }
             // Navigate to the audio recorder component with courseId and lectureId
             this.router.navigate(['/courses', this.courseId, response.lecture_id]);
           },

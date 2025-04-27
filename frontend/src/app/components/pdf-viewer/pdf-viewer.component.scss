@@ -1,135 +1,138 @@
+/* PDF Viewer Container Styles */
 .pdf-viewer-container {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* PDF Iframe Styles */
+.pdf-iframe {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Controls Styles */
+.slide-controls {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.slide-number-input {
+  width: 60px;
+  margin-left: 10px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Save Controls */
+.save-controls {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.save-btn {
+  padding: 8px 16px;
+  background-color: #c06d7b;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.save-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.save-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.save-status {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.save-status.success {
+  color: #28a745;
+}
+
+.save-error {
+  color: #dc3545;
+  margin-left: 10px;
+}
+
+/* No PDF Message Styles */
+.no-pdf-message {
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  text-align: center;
+  color: #666;
+}
+
+/* Upload Button Styles */
+.pdf-upload {
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
-  
-  .pdf-upload {
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    
-    
-    .upload-btn {
-      display: inline-block;
-      padding: 8px 16px;
-      background-color: #f0f0f0;
-      border-radius: 4px;
-      cursor: pointer;
-      
-      
-      &:hover {
-        background-color: #e0e0e0;
-      }
-    }
-    
-    .file-name {
-      color: #666;
-      font-size: 0.9em;
-    }
-  }
-  
-  .pdf-viewer {
-    flex: 1;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-    width: 100%; /* ✅ Add this! */
-    
-    iframe.pdf-iframe {
-      border: none;
-      box-shadow: none;
-      // width: 700px;
-      object-fit: contain; /* optional: scale nicely inside */
+  align-items: center;
+}
 
-    }
-    
-    .slide-controls {
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      background-color: #f5f5f5;
-      
-      .slide-number-input {
-        width: 50px;
-        padding: 4px;
-        margin-left: 8px;
-      }
-    }
-  }
-  
-  .pdf-fallback {
-    padding: 20px;
-    text-align: center;
-    
-    .fallback-options {
-      margin-top: 10px;
-      
-      .fallback-btn {
-        margin: 0 5px;
-        padding: 8px 16px;
-        background-color: #f0f0f0;
-        border: none;
-        border-radius: 4px;
-        text-decoration: none;
-        color: #333;
-        cursor: pointer;
-        
-        &:hover {
-          background-color: #e0e0e0;
-        }
-      }
-    }
-  }
-  
-.no-pdf-message {
-  text-align: center;
-  padding: 2rem;
-  color: #888;
-  border: 1px dashed #ccc;
-  border-radius: 4px;
+.upload-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  .pdf-upload {
-    margin-top: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-
-    .upload-btn {
-      width: 200px;
-      height: 200px;
-      background-color: #f0f0f0;
-      border-radius: 10px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.2s ease;
-
-      svg {
-        width: 32px;
-        height: 32px;
-        color: #555; /* SVG icon color */
-      }
-
-      &:hover {
-        background-color: #e0e0e0;
-      }
-    }
-
-    .upload-text {
-      margin-top: 0.3rem;
-      font-size: 0.9rem;
-      color: #555;
-    }
-  }
+  width: 80px;
+  height: 80px;
+  border: 2px dashed #c06d7b;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #c06d7b;
 }
 
+.upload-btn:hover {
+  background-color: rgba(192, 109, 123, 0.1);
+  transform: scale(1.05);
+}
 
-  
+.upload-text {
+  margin-top: 10px;
+  color: #c06d7b;
+  font-weight: bold;
+}
+
+/* Fallback options */
+.fallback-options {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.fallback-btn {
+  padding: 6px 12px;
+  background-color: transparent;
+  border: 1px solid #c06d7b;
+  color: #c06d7b;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.fallback-btn:hover {
+  background-color: rgba(192, 109, 123, 0.1);
 }

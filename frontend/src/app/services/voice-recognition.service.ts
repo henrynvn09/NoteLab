@@ -7,6 +7,13 @@ export interface TranscriptCallbacks {
   onFinal: (text: string, start: number, end: number) => void;
 }
 
+export interface AudioData {
+  blob: Blob;
+  timestamp: number;
+  duration?: number;
+  mimeType: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -19,6 +26,7 @@ export class VoiceRecognitionService {
   private callbacks?: TranscriptCallbacks;    
   private intervalID?: NodeJS.Timeout;
   private prevEndTime = 0;
+  private audioChunks: Blob[] = []; // Array to store audio chunks
   
   constructor() {}
 
@@ -28,6 +36,9 @@ export class VoiceRecognitionService {
 
   async startListening(): Promise<void> {
     try {
+      // Clear previous audio chunks when starting
+      this.audioChunks = [];
+      
       if (!this.liveClient || this.liveClient.getReadyState() === WebSocket.CLOSED) {
         this.liveClient = this.deepgram.listen.live({ model: "nova-3", punctuate: true, diarize: true, smart_format: true});
         this.setupListeners();
@@ -36,10 +47,16 @@ export class VoiceRecognitionService {
       this.mediaRecorder = new MediaRecorder(this.audioStream, { mimeType: 'audio/webm'});
 
       this.mediaRecorder.addEventListener('dataavailable', (event) => {
-        if (event.data.size > 0 && this.liveClient?.getReadyState() === WebSocket.OPEN) {
-          event.data.arrayBuffer().then((buffer) => {
-            this.liveClient?.send(buffer);
-          });     
+        if (event.data.size > 0) {
+          // Store the audio chunk for later access
+          this.audioChunks.push(event.data);
+          
+          // Send to Deepgram if connection is open
+          if (this.liveClient?.getReadyState() === WebSocket.OPEN) {
+            event.data.arrayBuffer().then((buffer) => {
+              this.liveClient?.send(buffer);
+            });     
+          }
         } 
       });
 
@@ -106,6 +123,9 @@ export class VoiceRecognitionService {
       console.error('Deepgram error:', err);
     });
   }
+  getAudioStream(): MediaStream | undefined {
+    return this.audioStream;
+  }
 
   /**
    * Get the current timestamp in the transcript
@@ -114,5 +134,43 @@ export class VoiceRecognitionService {
   getCurrentTranscriptTime(): number {
     console.log('Current transcript time:', this.prevEndTime);
     return this.prevEndTime;
+  }
+  
+  /**
+   * Get the recorded audio data as a Blob
+   * @param type The MIME type for the resulting audio blob (default: 'audio/webm')
+   * @returns Audio data as Blob or undefined if no audio has been recorded
+   */
+  getRecordedAudio(type: string = 'audio/webm'): Blob | undefined {
+    if (this.audioChunks.length === 0) {
+      return undefined;
+    }
+    return new Blob(this.audioChunks, { type });
+  }
+  
+  /**
+   * Get the complete audio data object including the blob and metadata
+   * @param type The MIME type for the resulting audio blob (default: 'audio/webm')
+   * @returns AudioData object containing the blob and metadata or undefined if no audio recorded
+   */
+  getAudioData(type: string = 'audio/webm'): AudioData | undefined {
+    const blob = this.getRecordedAudio(type);
+    if (!blob) {
+      return undefined;
+    }
+    
+    return {
+      blob,
+      timestamp: this.prevEndTime,
+      mimeType: type,
+      duration: undefined // Could be calculated if you track recording duration
+    };
+  }
+  
+  /**
+   * Clear the stored audio chunks
+   */
+  clearRecordedAudio(): void {
+    this.audioChunks = [];
   }
 }
