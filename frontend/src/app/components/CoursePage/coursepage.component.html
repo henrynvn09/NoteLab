@@ -1,0 +1,29 @@
+<div class="course-page-container">
+  
+  <!-- Top Nav (reuse the same left navbar!) -->
+  <app-course-navbar></app-course-navbar>
+
+  <!-- Main content -->
+  <div class="courses-content">
+    <!-- Loading indicator -->
+    <div class="loading-spinner" *ngIf="isLoading">
+      Loading courses...
+    </div>
+
+    <div class="course-grid" *ngIf="!isLoading">
+      <!-- Dynamically rendered courses from API -->
+      <div class="course-folder" *ngFor="let course of courses" (click)="openCourse(course.course_id, course.course_name)">
+        <div class="folder-icon"></div>
+        <div class="course-name">{{ course.course_name }}</div>
+      </div>
+
+      <!-- Add new course folder -->
+      <div class="course-folder add-folder" (click)="addNewCourse()" [class.disabled]="isCreatingCourse">
+        <div class="folder-icon plus-icon" *ngIf="!isCreatingCourse">+</div>
+        <div class="spinner" *ngIf="isCreatingCourse"></div>
+        <div class="course-name" *ngIf="isCreatingCourse">Creating...</div>
+      </div>
+    </div>
+
+  </div>
+</div>

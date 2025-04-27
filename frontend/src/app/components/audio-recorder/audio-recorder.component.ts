@@ -1,13 +1,14 @@
-import { Component, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnDestroy, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { AudioRecordingService } from '../../services/audio-recording.service';
 import { NoteService, TimestampedNote } from '../../services/note.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-audio-recorder',
   templateUrl: './audio-recorder.component.html',
   styleUrls: ['./audio-recorder.component.scss']
 })
-export class AudioRecorderComponent implements OnDestroy {
+export class AudioRecorderComponent implements OnInit, OnDestroy {
   @ViewChild('notesTextarea') notesTextarea!: ElementRef<HTMLTextAreaElement>;
   
   // PDF-related properties
@@ -16,11 +17,22 @@ export class AudioRecorderComponent implements OnDestroy {
   currentSlideNumber = 1;
   
   audioElement: HTMLAudioElement | null = null;
+  courseId: string | null = null;
+  lectureId: string | null = null;
 
   constructor(
     private audioRecordingService: AudioRecordingService,
-    private noteService: NoteService
+    private noteService: NoteService,
+    private route: ActivatedRoute
   ) {}
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      this.courseId = params.get('courseId');
+      this.lectureId = params.get('lectureId');
+      console.log('Audio recorder initialized with course:', this.courseId, 'and lecture:', this.lectureId);
+    });
+  }
   
   // Getter to expose service property to template
   get audioURL(): string | null {

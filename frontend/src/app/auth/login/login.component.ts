@@ -46,7 +46,7 @@ export class LoginComponent implements OnInit {
       .subscribe({
         next: (response) => {
           localStorage.setItem('auth_token', response.access_token);
-          this.router.navigate(['/']);
+          this.router.navigate(['/courses']);
         },
         error: (error) => {
           this.isSubmitting = false;

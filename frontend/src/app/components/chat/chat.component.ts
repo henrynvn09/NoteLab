@@ -1,7 +1,7 @@
 // voice-transcription.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { VoiceRecognitionService } from '../../services/voice-recognition.service';
-import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 interface TranscriptEntry {
   text: string;
@@ -21,9 +21,39 @@ export class ChatComponent implements OnInit, OnDestroy {
   isRecording = false;
   isPaused = false;
   hasLogs = false;
-  constructor(private voiceService: VoiceRecognitionService) {}
+  
+  // Course information
+  courseId: string | null = null;
+  courseName: string | null = null;
+  
+  constructor(
+    private voiceService: VoiceRecognitionService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
+    // Get course information from the route parameters
+    this.route.paramMap.subscribe(params => {
+      const courseNameParam = params.get('courseName');
+      if (courseNameParam) {
+        this.courseName = courseNameParam.replace(/-/g, ' ');
+      }
+    });
+    
+    // Also check query parameters (for backward compatibility)
+    this.route.queryParamMap.subscribe(params => {
+      const courseIdParam = params.get('courseId');
+      const courseNameParam = params.get('courseName');
+      
+      if (courseIdParam) {
+        this.courseId = courseIdParam;
+      }
+      
+      if (courseNameParam && !this.courseName) {
+        this.courseName = courseNameParam;
+      }
+    });
+    
     // Subscribe to transcript events
     this.voiceService.setOnTranscriptHandlers({
       onPartial: (partial) => {
@@ -76,7 +106,13 @@ export class ChatComponent implements OnInit, OnDestroy {
     const blob = new Blob([chatContent], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'chat_log.txt';
+    
+    // Use course name in the file name if available
+    const fileName = this.courseName 
+      ? `${this.courseName.toLowerCase().replace(/\s+/g, '_')}_chat_log.txt`
+      : 'chat_log.txt';
+      
+    link.download = fileName;
     link.click();
   }
 
@@ -90,7 +126,13 @@ export class ChatComponent implements OnInit, OnDestroy {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'transcript.vtt';
+    
+    // Use course name in the file name if available
+    const fileName = this.courseName 
+      ? `${this.courseName.toLowerCase().replace(/\s+/g, '_')}_transcript.vtt`
+      : 'transcript.vtt';
+      
+    a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);    
   }
@@ -103,6 +145,4 @@ export class ChatComponent implements OnInit, OnDestroy {
     const ms = String(date.getUTCMilliseconds()).padStart(3, '0');
     return `${hh}:${mm}:${ss}.${ms}`;
   }
-  
-
 }

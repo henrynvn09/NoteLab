@@ -16,6 +16,9 @@ import { RegisterComponent } from './auth/register/register.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { ChatComponent } from './components/chat/chat.component';
 import { LeftNavbarComponent } from './components/LeftNavBar/left-navbar.component';
+import { CourseNavbarComponent } from './components/CourseNavBar/coursenavbar.component';
+import { CoursePageComponent } from './components/CoursePage/coursepage.component';
+import { LecturesPageComponent } from './components/lectures-page/lectures-page.component';
 
 
 @NgModule({
@@ -29,7 +32,10 @@ import { LeftNavbarComponent } from './components/LeftNavBar/left-navbar.compone
     LoginComponent,
     RegisterComponent,
     ChatComponent,
-    LeftNavbarComponent
+    LeftNavbarComponent,
+    CourseNavbarComponent,
+    CoursePageComponent,
+    LecturesPageComponent
   ],
   imports: [
     BrowserModule,

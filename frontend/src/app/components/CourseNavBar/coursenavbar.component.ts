@@ -1,13 +1,13 @@
 import { Component, ElementRef, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/services/auth.service'; // adjust path if needed
+import { AuthService } from 'src/app/services/auth.service'; // adjust if needed
 
 @Component({
-  selector: 'app-left-navbar',
-  templateUrl: './left-navbar.component.html',
-  styleUrls: ['./left-navbar.component.scss']
+  selector: 'app-course-navbar',
+  templateUrl: './coursenavbar.component.html',
+  styleUrls: ['./coursenavbar.component.scss']
 })
-export class LeftNavbarComponent {
+export class CourseNavbarComponent {
   menuOpen = false;
 
   constructor(
@@ -15,10 +15,6 @@ export class LeftNavbarComponent {
     private authService: AuthService,
     private elementRef: ElementRef
   ) {}
-
-  goToChat() {
-    this.router.navigate(['/courses']);
-  }
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
@@ -36,7 +32,6 @@ export class LeftNavbarComponent {
     this.menuOpen = false;
   }
 
-  // ⭐ Detect clicks outside the component
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const clickedInside = this.elementRef.nativeElement.contains(event.target);

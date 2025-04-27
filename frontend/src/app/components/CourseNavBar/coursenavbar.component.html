@@ -1,0 +1,18 @@
+<div class="course-navbar">
+  <div class="title">
+    My Courses
+  </div>
+
+  <div class="navbar-actions">
+
+
+    <div class="profile-icon" (click)="toggleMenu()">
+      <img src="assets/profile-icon.svg" alt="Profile" />
+    </div>
+
+    <div class="profile-dropdown" *ngIf="menuOpen">
+      <button (click)="goHome()">Home</button>
+      <button (click)="logout($event)">Logout</button>
+    </div>
+  </div>
+</div>
