@@ -1,27 +1,33 @@
-<!-- voice-transcription.component.html -->
 <div class="transcription-container">
   <h2>Live Transcription</h2>
   
   <div class="chat-log">
     <div *ngFor="let line of chatLog">{{ line }}</div>
+    <div class="live-text" *ngIf="liveTranscript">
+      <em>{{ liveTranscript }}</em>
+    </div>
   </div>
 
-  <div class="live-text" *ngIf="liveTranscript">
-    <em>{{ liveTranscript }}</em>
-  </div>
+  <div class="button-container">
+    <!-- Initial and after-stop state -->
+    <div class="button-row" *ngIf="!isRecording && !isPaused">
+      <div class="button-placeholder"></div>
+      <button class="focus start" (click)="start()">Start</button>
+      <button class="dud download" *ngIf="hasLogs" (click)="downloadChatLog()">Download Logs</button>
+    </div>
 
-  <button *ngIf="!isRecording && !isPaused" (click)="start()">Start</button>
-  <button *ngIf="isRecording && isPaused" (click)="stop()">Stop</button>
-  <button *ngIf="isRecording && isPaused" (click)="resume()">Resume</button>
-  <button *ngIf="isRecording && !isPaused" (click)="pause()">Pause</button>
-  <button *ngIf="hasLogs" (click)="downloadChatLog()">Download Logs</button>
-  
+    <!-- Recording state -->
+    <div class="button-row" *ngIf="isRecording && !isPaused">
+      <div class="button-placeholder"></div>
+      <button class="focus pause" (click)="pause()">Pause</button>
+      <div class="button-placeholder"></div>
+    </div>
+
+    <!-- Paused state -->
+    <div class="button-row" *ngIf="isRecording && isPaused">
+      <button class="dud stop" (click)="stop()">Stop</button>
+      <button class="focus resume" (click)="resume()">Resume</button>
+      <button class="dud download" *ngIf="hasLogs" (click)="downloadChatLog()">Download Logs</button>
+    </div>
+  </div>
 </div>
-
-<!-- <div class="transcript">
-  <div *ngFor="let entry of transcriptEntries">
-    <strong>{{ formatTime(entry.start) }} - {{ formatTime(entry.end) }}</strong>
-    <p>{{ entry.text }}</p>
-  </div>
-  <button *ngIf="hasLogs" (click)="downloadVTT()">Download VTT Logs</button>
-</div> -->
