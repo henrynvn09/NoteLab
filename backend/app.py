@@ -12,6 +12,7 @@ from typing import List, Optional, Dict, Any
 import shutil
 import os
 import json
+from summarize_transcript import generate_notes
 
 # Config
 SECRET_KEY = "your_secret_key"
@@ -327,6 +328,26 @@ async def update_lecture_materials(
     if not lecture:
         raise HTTPException(status_code=404, detail="Lecture not found or doesn't belong to specified course")
     
+    # save user notes to a file
+    user_notes_path = os.path.join(UPLOAD_DIR, "user_notes", f"{lecture_oid}.txt")
+    with open(user_notes_path, "w") as f:
+        f.write(materials.userNotes)
+    userNotes = user_notes_path
+
+    # save transcript to a file
+    transcript_path = os.path.join(UPLOAD_DIR, "transcripts", f"{lecture_oid}.txt")
+    with open(transcript_path, "w") as f:
+        f.write(materials.transcript)
+    transcript = transcript_path
+    
+    # save vtt file to a file
+    transcriptvtt_path = os.path.join(UPLOAD_DIR, "transcripts", f"{lecture_oid}.vtt")
+    with open(transcriptvtt_path, "w") as f:
+        f.write(materials.transcriptvtt)
+    transcriptvtt = transcriptvtt_path
+    
+    ai_note = generate_notes(userNotes, transcript, transcriptvtt)
+        
     # Update the materials
     update_data = {
         "materials.title": materials.title,
@@ -335,7 +356,7 @@ async def update_lecture_materials(
         "materials.slides": materials.slides,
         "materials.userNotes": materials.userNotes,
         "materials.recording": materials.recording,
-        "materials.ai_note": materials.ai_note
+        "materials.ai_note": ai_note
     }
     
     # Remove None values
