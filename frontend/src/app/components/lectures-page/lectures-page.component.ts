@@ -75,9 +75,12 @@ export class LecturesPageComponent implements OnInit {
     if (lectureName) {
       const dummyData = {
         title: lectureName,
-        user_note: "These are my notes for the lecture",
-        recording: "https://storage.example.com/recordings/lecture-123.mp3",
-        transcript: "This is the transcript of the lecture content..."
+        transcript: "",
+        transcriptvtt: "",
+        slides: "",
+        userNotes: "",
+        recording: "",
+        ai_note: ""
       };
       
       this.http.post<{lecture_id: string}>(`http://localhost:8000/courses/${this.courseId}`, dummyData)

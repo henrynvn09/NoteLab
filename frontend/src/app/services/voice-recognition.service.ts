@@ -43,7 +43,7 @@ export class VoiceRecognitionService {
         } 
       });
 
-      this.mediaRecorder.start(250);
+      this.mediaRecorder.start(80);
     } catch (error) {
       console.error('Microphone access error:', error);
     }
@@ -98,6 +98,7 @@ export class VoiceRecognitionService {
         // console.log('Final:', transcript);
         this.callbacks?.onFinal(transcript, this.prevEndTime, data.start);
         this.prevEndTime = data.start;
+        console.log('Final:', transcript, 'Start:', data.start, 'End:', data.end);
       }
     });
 
@@ -106,4 +107,12 @@ export class VoiceRecognitionService {
     });
   }
 
+  /**
+   * Get the current timestamp in the transcript
+   * @returns The current timestamp in seconds
+   */
+  getCurrentTranscriptTime(): number {
+    console.log('Current transcript time:', this.prevEndTime);
+    return this.prevEndTime;
+  }
 }

@@ -20,7 +20,7 @@
   </h2>
 
   
-  <div class="chat-log">
+  <div class="chat-log" #chatLogContainer>
     <div *ngFor="let line of chatLog">{{ line }}</div>
     <div class="live-text" *ngIf="liveTranscript">
       <em>{{ liveTranscript }}</em>
@@ -28,8 +28,8 @@
   </div>
 
   <div class="button-container">
-    <!-- Initial and after-stop state -->
-    <div class="button-row" *ngIf="!isRecording && !isPaused">
+    <!-- Initial state -->
+    <div class="button-row" *ngIf="!isRecording && !isPaused && !isStoppedState">
       <div class="button-placeholder"></div>
       <button class="focus start circle-btn" (click)="start()" title="Start Recording">
         <i class="fas fa-play"></i>
@@ -59,6 +59,13 @@
       <button class="dud download circle-btn" *ngIf="hasLogs" (click)="downloadChatLog()" title="Download Transcript">
         <i class="fas fa-download"></i>
       </button>
+    </div>
+    
+    <!-- Post-recording state (after Stop is pressed) -->
+    <div class="button-row" *ngIf="isStoppedState">
+      <div class="button-placeholder"></div>
+      <button class="focus start" (click)="submitTranscript()">Submit</button>
+      <button class="dud download" (click)="startOver()">Start Over</button>
     </div>
   </div>
 </div>
