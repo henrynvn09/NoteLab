@@ -6,7 +6,9 @@ import {
   Input,
   ViewChild,
   HostListener,
-  Injector
+  Injector,
+  SimpleChanges,
+  OnChanges
 } from '@angular/core';
 import { NoteService } from '../../services/note.service';
 import { Editor, Toolbar, NgxEditorComponent } from 'ngx-editor';
@@ -18,8 +20,10 @@ import { VoiceRecognitionService } from '../../services/voice-recognition.servic
   templateUrl: './timestamped-notes.component.html',
   styleUrls: ['./timestamped-notes.component.scss']
 })
-export class TimestampedNotesComponent implements OnInit, OnDestroy, AfterViewInit {
+export class TimestampedNotesComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   @Input() isRecording = false;
+  @Input() userNotes?: string;
+  @Input() lectureTitleInput?: string; // New input property with different name
   @ViewChild('ngxEditorComp') ngxEditorComp!: NgxEditorComponent;
 
   editor!: Editor;
@@ -47,10 +51,35 @@ export class TimestampedNotesComponent implements OnInit, OnDestroy, AfterViewIn
   ngOnInit(): void {
     this.editor = new Editor({ keyboardShortcuts: true });
     
-    // Initialize note title from service if available
-    const savedTitle = this.noteService.getNoteTitle();
-    if (savedTitle && savedTitle !== 'Untitled Note') {
-      this.noteTitle = savedTitle;
+    // Initialize note title from input or service
+    if (this.lectureTitleInput) {
+      this.noteTitle = this.lectureTitleInput;
+      this.noteService.setNoteTitle(this.lectureTitleInput);
+    } else {
+      const savedTitle = this.noteService.getNoteTitle();
+      if (savedTitle && savedTitle !== 'Untitled Note') {
+        this.noteTitle = savedTitle;
+      }
+    }
+    
+    // Set initial userNotes if provided
+    if (this.userNotes) {
+      this.noteService.setCurrentNote(this.userNotes);
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Handle changes to userNotes
+    if (changes['userNotes'] && changes['userNotes'].currentValue && this.editor) {
+      console.log('Received userNotes:', this.userNotes);
+      this.noteService.setCurrentNote(this.userNotes as string);
+    }
+    
+    // Handle changes to lectureTitleInput
+    if (changes['lectureTitleInput'] && changes['lectureTitleInput'].currentValue) {
+      console.log('Received lecture title:', this.lectureTitleInput);
+      this.noteTitle = changes['lectureTitleInput'].currentValue;
+      this.noteService.setNoteTitle(this.noteTitle);
     }
   }
 
