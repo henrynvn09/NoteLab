@@ -451,6 +451,7 @@ def generate_notes(user_notes_path, text_file_path, vtt_file_path):
         output.write(final_notes_with_images)
     
     print("Successfully completed notes!", file=sys.stderr)
+    return final_notes_with_images
 
 # if __name__ == '__main__':
 #     generate_notes('./text_files/user_notes.html', './text_files/transcript.txt', './text_files/transcript.vtt')
