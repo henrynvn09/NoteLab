@@ -1,7 +1,7 @@
 <div class="transcription-container">
   <h2>Live Transcription</h2>
   
-  <div class="chat-log">
+  <div class="chat-log" #chatLogContainer>
     <div *ngFor="let line of chatLog">{{ line }}</div>
     <div class="live-text" *ngIf="liveTranscript">
       <em>{{ liveTranscript }}</em>

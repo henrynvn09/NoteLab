@@ -1,5 +1,5 @@
 // voice-transcription.component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { VoiceRecognitionService } from '../../services/voice-recognition.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -14,13 +14,18 @@ interface TranscriptEntry {
   styleUrls: ['./chat.component.css'],
 })
 
-export class ChatComponent implements OnInit, OnDestroy {
+export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('chatLogContainer') private chatLogContainer!: ElementRef;
+  
   transcriptEntries: TranscriptEntry[] = [];
   chatLog: string[] = [];
   liveTranscript: string = '';
   isRecording = false;
   isPaused = false;
   hasLogs = false;
+  
+  // Flag to track when new content is added
+  private shouldScrollToBottom = false;
   
   // Course information
   courseId: string | null = null;
@@ -58,13 +63,28 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.voiceService.setOnTranscriptHandlers({
       onPartial: (partial) => {
         this.liveTranscript = partial;
+        this.shouldScrollToBottom = true;
       },
       onFinal: (text : string, start: number, end: number) => {
         this.chatLog.push(text);
         this.transcriptEntries.push({text, start, end});
         this.liveTranscript = ''; // Clear live partial on finalization
+        this.shouldScrollToBottom = true;
       },
     });
+  }
+
+  ngAfterViewChecked() {
+    if (this.shouldScrollToBottom) {
+      this.scrollToBottom();
+    }
+  }
+
+  private scrollToBottom(): void {
+    try {
+      this.chatLogContainer.nativeElement.scrollTop = this.chatLogContainer.nativeElement.scrollHeight;
+      this.shouldScrollToBottom = false;
+    } catch(err) { }
   }
 
   start(): void {
