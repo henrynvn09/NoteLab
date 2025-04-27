@@ -341,7 +341,7 @@ async def update_lecture_materials(
     transcript = transcript_path
     
     # save vtt file to a file
-    transcriptvtt_path = os.path.join(UPLOAD_DIR, "transcripts", f"{lecture_oid}.vtt")
+    transcriptvtt_path = os.path.join(UPLOAD_DIR, "vtt", f"{lecture_oid}.vtt")
     with open(transcriptvtt_path, "w") as f:
         f.write(materials.transcriptvtt)
     transcriptvtt = transcriptvtt_path
