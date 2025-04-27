@@ -195,7 +195,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         throw new Error('Course ID is missing. Cannot submit lecture data.');
       }
       
-      const endpoint = `http://localhost:8000/courses/${this.courseId}`;
+      const endpoint = `http://localhost:8000/courses/${this.courseId}/${this.lectureId}`;
       console.log('Submitting to endpoint:', endpoint);
       
       // Show loading indicator or message
