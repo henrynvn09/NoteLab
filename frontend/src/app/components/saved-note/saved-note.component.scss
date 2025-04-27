@@ -120,4 +120,109 @@
       }
     }
   }
+  
+  .notes-tabs {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    
+    .tab-headers {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      
+      .tab-header {
+        padding: 10px 20px;
+        cursor: pointer;
+        font-weight: 500;
+        position: relative;
+        border-radius: 4px 4px 0 0;
+        
+        &:hover {
+          background-color: #f0f0f0;
+        }
+        
+        &.active {
+          color: #3367d6;
+          
+          &:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #3367d6;
+          }
+        }
+      }
+    }
+    
+    .tab-content {
+      flex: 1;
+      overflow: hidden;
+      
+      .tab-pane {
+        height: 100%;
+        overflow-y: auto;
+        width: 100%; /* Ensure tab pane fills the available width */
+      }
+      
+      .ai-notes-placeholder {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9f9f9;
+        color: #666;
+        font-style: italic;
+        width: 600px; /* Match the width of the notes container */
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+  
+  .ai-notes-container {
+    width: 600px; /* Match the width of the notes container */
+    height: 99vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1rem 0 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    .title-section {
+      margin-bottom: 0.5rem;
+      
+      .title-text {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        color: #333;
+        cursor: default;
+      }
+    }
+    
+    .ai-notes-content {
+      flex-grow: 1;
+      position: relative;
+      
+      .ai-notes-editor {
+        white-space: pre-wrap !important;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        overflow-y: auto;
+        min-height: 350px;
+        padding: 1rem;
+        font-family: Arial, sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        height: 83vh;
+        background-color: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+      }
+    }
+  }
 }

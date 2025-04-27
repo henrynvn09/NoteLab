@@ -52,7 +52,41 @@
     
     <!-- Notes Section (Right) -->
     <div class="timestamped-notes-wrapper">
-      <app-timestamped-notes [isRecording]="isRecording"></app-timestamped-notes>      
-     </div>
+      <div class="notes-tabs">
+        <div class="tab-headers">
+          <div class="tab-header" 
+               [ngClass]="{'active': activeTab === 'notes'}" 
+               (click)="activeTab = 'notes'">
+            Notes
+          </div>
+          <div class="tab-header" 
+               [ngClass]="{'active': activeTab === 'ai-notes'}" 
+               (click)="activeTab = 'ai-notes'">
+            AI Notes
+          </div>
+        </div>
+
+        <div class="tab-content">
+          <!-- Notes Tab -->
+          <div *ngIf="activeTab === 'notes'" class="tab-pane">
+            <app-timestamped-notes [isRecording]="isRecording"></app-timestamped-notes>
+          </div>
+          
+          <!-- AI Notes Tab -->
+          <div *ngIf="activeTab === 'ai-notes'" class="tab-pane">
+            <div class="ai-notes-container">
+              <div class="title-section">
+                <h3 class="title-text">AI Generated Notes</h3>
+              </div>
+              <div class="ai-notes-content">
+                <div class="ai-notes-editor">
+                  {{ lectureData?.ai_note || 'AI generated notes will appear here.' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

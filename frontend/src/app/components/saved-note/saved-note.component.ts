@@ -48,6 +48,9 @@ export class SavedNoteComponent implements OnInit, OnDestroy {
   lectureData: LectureUpdateResponse | null = null;
   private lectureDataSubscription: Subscription | null = null;
 
+  // Tab navigation
+  activeTab: 'notes' | 'ai-notes' = 'notes'; // Default to notes tab
+
   constructor(
     private audioRecordingService: AudioRecordingService,
     private noteService: NoteService,
