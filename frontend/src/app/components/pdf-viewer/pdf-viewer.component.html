@@ -21,6 +21,18 @@
         class="slide-number-input">
     </div>
 
+    <!-- Save to Backend Button -->
+    <!-- <div class="save-controls">
+      <button 
+        (click)="savePdfToBackend()" 
+        class="save-btn"
+        [disabled]="isSaving || !currentFile">
+        {{ isSaving ? 'Saving...' : 'Save to Server' }}
+      </button>
+      <span class="save-status success" *ngIf="saveSuccess">PDF saved successfully!</span>
+      <span class="save-error" *ngIf="saveError">{{ saveError }}</span>
+    </div> -->
+
     <!-- Fallback if iframe fails -->
     <div class="pdf-fallback" *ngIf="!safeUrl">
       <p>Unable to display the PDF in browser. You can:</p>
