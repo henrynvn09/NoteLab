@@ -1,4 +1,10 @@
 <div class="transcription-container">
+  <!-- Loading overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Processing transcript...</p>
+  </div>
+
   <h2>
     <div class="chatbot-icon" [ngClass]="{
       'not-recording': !isRecording && !hasLogs,

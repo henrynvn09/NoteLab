@@ -37,6 +37,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   isPaused = false;
   hasLogs = false;
   isStoppedState = false;
+  isLoading = false; // New property to track loading state
   
   // Flag to track when new content is added
   private shouldScrollToBottom = false;
@@ -175,6 +176,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // New methods for Submit and Start Over buttons
   // Submit transcript and lecture materials to the server
   async submitTranscript(): Promise<void> {
+    // Set loading state to true when submission starts
+    this.isLoading = true;
+    
     const currentNote = this.noteService.getCurrentNote();
     const noteTitle = this.noteService.getNoteTitle() || 'Untitled Lecture';
     
@@ -314,13 +318,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       // Process the response data and pass to saved-note component
       this.handleLectureResponse(response);
       
-      // // Keep the isStoppedState true to continue showing the submit/start over buttons
-      // this.isStoppedState = true;
-      
     } catch (error) {
       console.error('Error submitting lecture materials:', error);
       alert('Failed to submit lecture materials. Please try again.');
       this.isStoppedState = true;
+    } finally {
+      // Set loading state to false when submission completes (whether success or error)
+      this.isLoading = false;
     }
   }
 
