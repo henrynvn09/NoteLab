@@ -64,8 +64,12 @@
     <!-- Post-recording state (after Stop is pressed) -->
     <div class="button-row" *ngIf="isStoppedState">
       <div class="button-placeholder"></div>
-      <button class="focus start" (click)="submitTranscript()">Submit</button>
-      <button class="dud download" (click)="startOver()">Start Over</button>
-    </div>
-  </div>
+      <button class="focus submit circle-btn" (click)="submitTranscript()" title="Submit">
+        <i class="fas fa-check"></i>
+      </button>
+      <button class="restart dud circle-btn" (click)="startOver()" title="Start Over">
+        <i class="fas fa-redo"></i>
+      </button>
+    </div>  
+</div>
 </div>

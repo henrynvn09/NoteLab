@@ -11,7 +11,7 @@
   .title {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #a65c49;
+    color: #6879AF;
   }
 
   .navbar-actions {
@@ -23,7 +23,7 @@
     .menu-icon {
       font-size: 1.8rem;
       cursor: pointer;
-      color: #a65c49;
+      color: #6879AF;
     }
 
     .profile-icon {
@@ -31,16 +31,20 @@
       height: 36px;
       border-radius: 50%;
       overflow: hidden;
-      background-color: #f0f0f0;
+      background-color: #44507F;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-
+    
       img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        /* Make the SVG white to contrast with the blue background */
+        filter: brightness(0) invert(1);
+        transform: translateY(2px);
+        padding-top: 2px;
       }
     }
 

@@ -1,37 +1,52 @@
-/* Base Layout */
+/* ========== VARIABLES ========== */
 .transcription-container {
+  /* Define variables at component level instead of :root */
+  --primary-blue: #44507F;
+  --primary-blue-light: #6878af;
+  --primary-blue-lightest: #ececf0;
+  --recording-color: #F49083;
+  --completed-color: #95CC8C;
+  --gray: #CCCCCC;
+  --text-dark: #222;
+  --text-medium: #555;
+  --text-light: #666;
+  --border-color: #d5d5d5;
+  --background-light: #f0f0f0;
+  --background-lighter: #f9f9f9;
+  --shadow-light: 0 2px 5px rgba(0, 0, 0, 0.15);
+  --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  
+  /* Keep existing properties */
   max-width: 600px;
   margin: 52px auto;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-
-
-/* Chat Log Styles */
+/* ========== CHAT LOG STYLES ========== */
 .chat-log {
-  background: #f0f0f0;
+  background: var(--background-light);
   padding: 1rem;
   border-radius: 8px;
   max-height: 150px;
   overflow-y: auto;
   margin-bottom: 1rem;
   line-height: 1;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-inset);
   border: 1px solid #e3e3e3;
 }
 
 .chat-log > div {
   padding: 0.5rem 0;
-  border-bottom: 1px solid #d5d5d5; /* Changed from #eaeaea to a darker gray */
+  border-bottom: 1px solid var(--border-color);
 }
 
 .live-text {
-  color: #666;
+  color: var(--text-light);
   font-style: italic;
   margin-top: 0.5rem;
 }
 
-/* Button Container Layout */
+/* ========== BUTTON LAYOUT ========== */
 .button-container {
   display: flex;
   justify-content: center;
@@ -46,6 +61,22 @@
   max-width: 600px;
   gap: 16px;
   justify-items: center;
+  transition: opacity 1s ease;
+}
+
+/* Animation states */
+.button-row.ng-enter {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.button-row.ng-enter-active {
+  opacity: 1;
+}
+
+.button-row.ng-leave {
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .button-placeholder {
@@ -53,7 +84,8 @@
   visibility: hidden;
 }
 
-/* Common Button Styles */
+/* ========== BUTTON STYLING ========== */
+/* Common styles for all buttons */
 .circle-btn {
   display: flex;
   justify-content: center;
@@ -63,30 +95,45 @@
   position: relative;
 }
 
-/* Primary Buttons (circular) */
-.start.circle-btn, .pause.circle-btn, .resume.circle-btn {
-  background-color: #44507F;
-  color: white;
+/* Primary circular buttons */
+.start.circle-btn, 
+.pause.circle-btn, 
+.resume.circle-btn, 
+.submit.circle-btn {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   padding: 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-light);
   border: none;
 }
 
-.start.circle-btn {
-  background-color: white;
-  color: #44507F; 
-  border: 2px solid #44507F;
-
+/* Default primary button style (blue) */
+.pause.circle-btn, 
+.resume.circle-btn {
+  background-color: var(--primary-blue);
+  color: white;
 }
 
+/* Start button (inverted colors) */
+.start.circle-btn {
+  background-color: white;
+  color: var(--primary-blue);
+  border: 2px solid var(--primary-blue);
+}
 
-/* Secondary Buttons (icon only) */
-.stop.circle-btn, .download.circle-btn {
+/* Submit button (green) */
+.submit.circle-btn {
+  background-color: var(--completed-color);
+  color: white;
+}
+
+/* Secondary icon-only buttons */
+.stop.circle-btn, 
+.download.circle-btn, 
+.restart.circle-btn {
   background-color: transparent;
-  color: #44507F;
+  color: var(--primary-blue);
   border: none;
   box-shadow: none;
   width: auto;
@@ -94,47 +141,35 @@
   padding: 10px;
 }
 
-/* Icon Sizes */
-.start.circle-btn i, .pause.circle-btn i, .resume.circle-btn i {
+/* Button positioning */
+.stop {
+  justify-self: right;
+}
+
+.download, .restart {
+  justify-self: left;
+}
+
+/* Icon sizes */
+.start.circle-btn i, 
+.pause.circle-btn i, 
+.resume.circle-btn i, 
+.submit.circle-btn i {
   font-size: 18px;
 }
 
-.stop.circle-btn i, .download.circle-btn i {
+.stop.circle-btn i, 
+.download.circle-btn i, 
+.restart.circle-btn i {
   font-size: 20px;
 }
 
-/* Hover Effects */
-.pause.circle-btn:hover, .resume.circle-btn:hover {
-  transform: scale(1.05);
-  background-color: #6878af;
+.submit.circle-btn i.fa-check {
+  font-size: 24px; 
+  font-weight: bold; 
 }
 
-.start.circle-btn:hover {
-  background-color: #ececf0; /* Very light tint of blue on hover */
-  /* box-shadow: 0 0 8px rgba(68, 80, 127, 0.4);  */
-}
-
-.stop.circle-btn:hover, .download.circle-btn:hover {
-  color: #6878af;
-}
-
-/* Focus States */
-.pause.circle-btn:focus, .resume.circle-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(68, 80, 127, 0.4);
-}
-
-.start.circle-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(68, 80, 127, 0.4); /* Blue shadow for focus state */
-}
-
-.stop.circle-btn:focus, .download.circle-btn:focus {
-  outline: none;
-  color: #6878af;
-}
-
-/* Icon Positioning */
+/* Icon positioning */
 .fa-play {
   margin-left: 3px;
 }
@@ -143,7 +178,54 @@
   margin-left: 0;
 }
 
-/* Recording Status Indicator */
+/* ========== HOVER AND FOCUS EFFECTS ========== */
+/* Hover effects */
+.pause.circle-btn:hover, 
+.resume.circle-btn:hover {
+  transform: scale(1.05);
+  background-color: var(--primary-blue-light);
+}
+
+.start.circle-btn:hover {
+  background-color: var(--primary-blue-lightest);
+}
+
+.stop.circle-btn:hover, 
+.download.circle-btn:hover, 
+.restart.circle-btn:hover {
+  color: var(--primary-blue-light);
+}
+
+.submit.circle-btn:hover {
+  transform: scale(1.05);
+  background-color: #a8dfa0;
+}
+
+/* Focus states */
+.pause.circle-btn:focus, 
+.resume.circle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(68, 80, 127, 0.4);
+}
+
+.start.circle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(68, 80, 127, 0.4);
+}
+
+.stop.circle-btn:focus, 
+.download.circle-btn:focus, 
+.restart.circle-btn:focus {
+  outline: none;
+  color: var(--primary-blue-light);
+}
+
+.submit.circle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(149, 204, 140, 0.4);
+}
+
+/* ========== RECORDING STATUS INDICATOR ========== */
 .recording-status-indicator {
   display: inline-block;
   width: 12px;
@@ -155,22 +237,22 @@
 }
 
 .recording-status-indicator.not-recording {
-  background-color: #CCCCCC;
+  background-color: var(--gray);
 }
 
 .recording-status-indicator.recording {
-  background-color: #F49083;
+  background-color: var(--recording-color);
   animation: pulse 1.5s infinite;
 }
 
 .recording-status-indicator.paused {
-  background-color: #F49083;
+  background-color: var(--recording-color);
   animation: none;
   box-shadow: 0 0 0 2px rgba(244, 144, 131, 0.3);
 }
 
 .recording-status-indicator.completed {
-  background-color: #95CC8C;
+  background-color: var(--completed-color);
   transition: background-color 0.1s ease;
 }
 
@@ -186,11 +268,11 @@
   }
 }
 
-/* Transcript Styles (for future use) */
+/* ========== TRANSCRIPT STYLES ========== */
 .transcript {
   margin-top: 1.5rem;
   padding: 1rem;
-  background-color: #f9f9f9;
+  background-color: var(--background-lighter);
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   max-height: 400px;
@@ -201,12 +283,12 @@
 .transcript div {
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #d5d5d5; 
+  border-bottom: 1px solid var(--border-color);
 }
 
 .transcript strong {
   display: block;
-  color: #555;
+  color: var(--text-medium);
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
 }
@@ -214,132 +296,111 @@
 .transcript p {
   margin: 0;
   font-size: 1rem;
-  color: #222;
+  color: var(--text-dark);
   white-space: pre-wrap;
 }
 
-
-.stop {
-  justify-self: right;
-}
-
-.download {
-  justify-self: left;
-}
-
-
-
-
-
-/* Cute chatbot styling with eyes and mouth */
+/* ========== CHATBOT STYLING ========== */
 .chatbot-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px; /* Increased from 32px */
-  height: 35px; /* Increased from 30px */
-  background-color: #CCCCCC;
-  border-radius: 20px 20px 4px 20px; /* Adjusted border radius for larger size */
+  width: 38px;
+  height: 35px;
+  background-color: var(--gray);
+  border-radius: 20px 20px 4px 20px;
   color: white;
   position: relative;
   margin-right: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-light);
   overflow: visible;
   transition: all 0.3s ease;
 }
 
-/* Chatbot face elements - adjust positions for larger size */
+/* Chatbot face elements */
 .chatbot-icon::before,
 .chatbot-icon::after {
   content: '';
   position: absolute;
-  width: 5px; /* Slightly larger eyes */
+  width: 5px;
   height: 5px;
   background: white;
   border-radius: 50%;
-  top: 12px; /* Repositioned for larger size */
+  top: 12px;
 }
 
 .chatbot-icon::before {
-  left: 11px; /* Adjusted position */
+  left: 11px;
 }
 
 .chatbot-icon::after {
-  right: 11px; /* Adjusted position */
+  right: 11px;
 }
 
-/* Adjust mouth size and position */
+/* Chatbot mouth */
 .chatbot-icon .mouth {
   position: absolute;
-  width: 12px; /* Slightly wider mouth */
+  width: 12px;
   height: 3px;
   border-radius: 3px;
-  bottom: 10px; /* Repositioned for larger size */
-  left: 13px; /* Centered in the larger icon */
+  bottom: 10px;
+  left: 13px;
   background: white;
   border: none;
 }
 
-/* Adjust mouth styles for different states */
+/* Chatbot states - both parent and direct class application */
+/* Not recording state */
+.chatbot-icon.not-recording,
+.not-recording .chatbot-icon {
+  background-color: var(--gray);
+}
+
+/* Recording state */
+.chatbot-icon.recording,
+.recording .chatbot-icon {
+  background-color: var(--recording-color);
+}
+
+/* Recording mouth state */
 .chatbot-icon.recording .mouth {
   width: 8px;
   height: 8px;
   bottom: 7px;
   left: 15px;
-  border-radius: 50%; /* Circle mouth for talking */
+  border-radius: 50%;
 }
 
+/* Paused state */
+.chatbot-icon.paused,
+.paused .chatbot-icon {
+  background-color: var(--recording-color);
+  animation: none;
+  box-shadow: 0 0 0 2px rgba(244, 144, 131, 0.3);
+}
+
+/* Paused mouth */
 .chatbot-icon.paused .mouth {
   width: 12px;
   border-radius: 3px;
-  height: 3px; /* Straight line for paused */
+  height: 3px;
 }
 
-/* Happy mouth for completed state */
+/* Completed state */
+.chatbot-icon.completed,
+.completed .chatbot-icon {
+  background-color: var(--completed-color);
+}
+
+/* Completed mouth - smile */
 .chatbot-icon.completed .mouth {
   width: 12px;
   height: 6px;
-  border-radius: 0 0 6px 6px; /* Curved bottom for smile */
+  border-radius: 0 0 6px 6px;
   bottom: 7px;
 }
 
-/* State-specific colors */
-.recording .chatbot-icon {
-  background-color: #F49083; /* Match recording indicator color */
-  animation: pulse 1.5s infinite; /* Add the same pulse animation */
-}
-
-.paused .chatbot-icon {
-  background-color: #F49083; /* Match paused indicator color */
-  animation: none;
-  box-shadow: 0 0 0 2px rgba(244, 144, 131, 0.3);
-}
-
-.completed .chatbot-icon {
-  background-color: #95CC8C; /* Match completed indicator color */
-}
-
-/* Add hover effect to make icon grow slightly */
+/* Hover effect */
 .chatbot-icon:hover {
   transform: scale(1.15);
-}
-
-/* State-specific colors */
-.chatbot-icon.not-recording {
-  background-color: #CCCCCC; /* Match not-recording indicator color */
-}
-
-.chatbot-icon.recording {
-  background-color: #F49083; /* Match recording indicator color */
-  animation: pulse 1.5s infinite; /* Add the same pulse animation */
-}
-
-.chatbot-icon.paused {
-  background-color: #F49083; /* Match paused indicator color */
-  animation: none;
-  box-shadow: 0 0 0 2px rgba(244, 144, 131, 0.3);
-}
-
-.chatbot-icon.completed {
-  background-color: #95CC8C; /* Match completed indicator color */
 }

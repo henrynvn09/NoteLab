@@ -78,16 +78,7 @@
           
           <!-- AI Notes Tab -->
           <div *ngIf="activeTab === 'ai-notes'" class="tab-pane">
-            <div class="ai-notes-container">
-              <div class="title-section">
-                <h3 class="title-text">AI Generated Notes</h3>
-              </div>
-              <div class="ai-notes-content">
-                <div class="ai-notes-editor">
-                  {{ lectureData?.ai_note || 'AI generated notes will appear here.' }}
-                </div>
-              </div>
-            </div>
+            <app-timestamped-notes [isRecording]="isRecording" [userNotes]="lectureData?.ai_note" [lectureTitleInput]="lectureData?.title"></app-timestamped-notes>
           </div>
         </div>
       </div>
