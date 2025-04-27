@@ -1,5 +1,24 @@
 <div class="transcription-container">
-  <h2>Live Transcription</h2>
+  <h2>
+    <div class="chatbot-icon" [ngClass]="{
+      'not-recording': !isRecording && !hasLogs,
+      'recording': isRecording && !isPaused,
+      'paused': isRecording && isPaused,
+      'completed': !isRecording && hasLogs
+    }">
+      <div class="mouth"></div>
+    </div>
+    Live Transcription
+    <span class="recording-status-indicator" 
+          [ngClass]="{
+            'not-recording': !isRecording && !hasLogs,
+            'recording': isRecording && !isPaused,
+            'paused': isRecording && isPaused,
+            'completed': !isRecording && hasLogs
+          }">
+    </span>
+  </h2>
+
   
   <div class="chat-log">
     <div *ngFor="let line of chatLog">{{ line }}</div>
@@ -12,22 +31,34 @@
     <!-- Initial and after-stop state -->
     <div class="button-row" *ngIf="!isRecording && !isPaused">
       <div class="button-placeholder"></div>
-      <button class="focus start" (click)="start()">Start</button>
-      <button class="dud download" *ngIf="hasLogs" (click)="downloadChatLog()">Download Logs</button>
+      <button class="focus start circle-btn" (click)="start()" title="Start Recording">
+        <i class="fas fa-play"></i>
+      </button>      
+      <button class="dud download circle-btn" *ngIf="hasLogs" (click)="downloadChatLog()" title="Download Transcript">
+        <i class="fas fa-download"></i>
+      </button>
     </div>
 
     <!-- Recording state -->
     <div class="button-row" *ngIf="isRecording && !isPaused">
       <div class="button-placeholder"></div>
-      <button class="focus pause" (click)="pause()">Pause</button>
+      <button class="focus pause circle-btn" (click)="pause()" title="Pause Recording">
+        <i class="fas fa-pause"></i>
+      </button>
       <div class="button-placeholder"></div>
     </div>
 
     <!-- Paused state -->
     <div class="button-row" *ngIf="isRecording && isPaused">
-      <button class="dud stop" (click)="stop()">Stop</button>
-      <button class="focus resume" (click)="resume()">Resume</button>
-      <button class="dud download" *ngIf="hasLogs" (click)="downloadChatLog()">Download Logs</button>
+      <button class="dud stop circle-btn" (click)="stop()" title="End Recording">
+        <i class="fas fa-stop"></i>
+      </button>
+      <button class="focus resume circle-btn" (click)="resume()" title="Resume Recording">
+        <i class="fas fa-play"></i>
+      </button>
+      <button class="dud download circle-btn" *ngIf="hasLogs" (click)="downloadChatLog()" title="Download Transcript">
+        <i class="fas fa-download"></i>
+      </button>
     </div>
   </div>
 </div>

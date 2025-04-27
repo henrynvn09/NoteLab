@@ -1,24 +1,28 @@
 /* Base Layout */
 .transcription-container {
   max-width: 600px;
-  margin: 1rem auto;
+  margin: 52px auto;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
+
+
 /* Chat Log Styles */
 .chat-log {
-  background: #f5f5f5;
+  background: #f0f0f0;
   padding: 1rem;
   border-radius: 8px;
-  max-height: 300px;
+  max-height: 150px;
   overflow-y: auto;
   margin-bottom: 1rem;
-  line-height: 1.4;
+  line-height: 1;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e3e3e3;
 }
 
 .chat-log > div {
   padding: 0.5rem 0;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid #d5d5d5; /* Changed from #eaeaea to a darker gray */
 }
 
 .live-text {
@@ -27,20 +31,19 @@
   margin-top: 0.5rem;
 }
 
-/* Button Container */
+/* Button Container Layout */
 .button-container {
   display: flex;
   justify-content: center;
   width: 100%;
 }
 
-/* Grid Layout for Button Rows */
 .button-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   width: 100%;
   max-width: 600px;
-  gap: 8px;
+  gap: 16px;
   justify-items: center;
 }
 
@@ -49,49 +52,140 @@
   visibility: hidden;
 }
 
-/* Button Styles */
-.button-row button {
-  padding: 10px 20px;
-  border-radius: 12px;
-  border: none;
+/* Common Button Styles */
+.circle-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  white-space: nowrap;
-  font-size: 0.95rem;
+  position: relative;
 }
 
-/* Button Types */
-.start, .resume, .pause {
-  background-color: #c06d7b;
+/* Primary Buttons (circular) */
+.start.circle-btn, .pause.circle-btn, .resume.circle-btn {
+  background-color: #44507F;
   color: white;
-  font-weight: bold;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  padding: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  border: none;
 }
 
-.stop, .download {
+.start.circle-btn {
+  background-color: white;
+  color: #44507F; 
+  border: 2px solid #44507F;
+
+}
+
+
+/* Secondary Buttons (icon only) */
+.stop.circle-btn, .download.circle-btn {
   background-color: transparent;
-  color: #333;
+  color: #44507F;
+  border: none;
+  box-shadow: none;
+  width: auto;
+  height: auto;
+  padding: 10px;
 }
 
-/* Button States */
-.focus:hover {
-  transform: scale(1.1);
+/* Icon Sizes */
+.start.circle-btn i, .pause.circle-btn i, .resume.circle-btn i {
+  font-size: 18px;
 }
 
-.focus:focus {
+.stop.circle-btn i, .download.circle-btn i {
+  font-size: 20px;
+}
+
+/* Hover Effects */
+.pause.circle-btn:hover, .resume.circle-btn:hover {
+  transform: scale(1.05);
+  background-color: #6878af;
+}
+
+.start.circle-btn:hover {
+  background-color: #ececf0; /* Very light tint of blue on hover */
+  /* box-shadow: 0 0 8px rgba(68, 80, 127, 0.4);  */
+}
+
+.stop.circle-btn:hover, .download.circle-btn:hover {
+  color: #6878af;
+}
+
+/* Focus States */
+.pause.circle-btn:focus, .resume.circle-btn:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(192, 109, 123, 0.4);
+  box-shadow: 0 0 0 2px rgba(68, 80, 127, 0.4);
 }
 
-.dud:hover {
-  text-decoration: underline;
-}
-
-.dud:focus {
+.start.circle-btn:focus {
   outline: none;
-  color: #5f5f5f;
+  box-shadow: 0 0 0 3px rgba(68, 80, 127, 0.4); /* Blue shadow for focus state */
 }
 
-/* Transcript for future use */
+.stop.circle-btn:focus, .download.circle-btn:focus {
+  outline: none;
+  color: #6878af;
+}
+
+/* Icon Positioning */
+.fa-play {
+  margin-left: 3px;
+}
+
+.fa-pause, .fa-stop, .fa-download {
+  margin-left: 0;
+}
+
+/* Recording Status Indicator */
+.recording-status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 6px;
+  vertical-align: middle;
+  transition: background-color 0.3s ease;
+}
+
+.recording-status-indicator.not-recording {
+  background-color: #CCCCCC;
+}
+
+.recording-status-indicator.recording {
+  background-color: #F49083;
+  animation: pulse 1.5s infinite;
+}
+
+.recording-status-indicator.paused {
+  background-color: #F49083;
+  animation: none;
+  box-shadow: 0 0 0 2px rgba(244, 144, 131, 0.3);
+}
+
+.recording-status-indicator.completed {
+  background-color: #95CC8C;
+  transition: background-color 0.1s ease;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(244, 144, 131, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(244, 144, 131, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 144, 131, 0);
+  }
+}
+
+/* Transcript Styles (for future use) */
 .transcript {
   margin-top: 1.5rem;
   padding: 1rem;
@@ -106,7 +200,7 @@
 .transcript div {
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #d5d5d5; 
 }
 
 .transcript strong {
@@ -123,6 +217,128 @@
   white-space: pre-wrap;
 }
 
-.transcription-container {
-  margin: 0 1rem;
+
+.stop {
+  justify-self: right;
+}
+
+.download {
+  justify-self: left;
+}
+
+
+
+
+
+/* Cute chatbot styling with eyes and mouth */
+.chatbot-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; /* Increased from 32px */
+  height: 35px; /* Increased from 30px */
+  background-color: #CCCCCC;
+  border-radius: 20px 20px 4px 20px; /* Adjusted border radius for larger size */
+  color: white;
+  position: relative;
+  margin-right: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  overflow: visible;
+  transition: all 0.3s ease;
+}
+
+/* Chatbot face elements - adjust positions for larger size */
+.chatbot-icon::before,
+.chatbot-icon::after {
+  content: '';
+  position: absolute;
+  width: 5px; /* Slightly larger eyes */
+  height: 5px;
+  background: white;
+  border-radius: 50%;
+  top: 12px; /* Repositioned for larger size */
+}
+
+.chatbot-icon::before {
+  left: 11px; /* Adjusted position */
+}
+
+.chatbot-icon::after {
+  right: 11px; /* Adjusted position */
+}
+
+/* Adjust mouth size and position */
+.chatbot-icon .mouth {
+  position: absolute;
+  width: 12px; /* Slightly wider mouth */
+  height: 3px;
+  border-radius: 3px;
+  bottom: 10px; /* Repositioned for larger size */
+  left: 13px; /* Centered in the larger icon */
+  background: white;
+  border: none;
+}
+
+/* Adjust mouth styles for different states */
+.chatbot-icon.recording .mouth {
+  width: 8px;
+  height: 8px;
+  bottom: 7px;
+  left: 15px;
+  border-radius: 50%; /* Circle mouth for talking */
+}
+
+.chatbot-icon.paused .mouth {
+  width: 12px;
+  border-radius: 3px;
+  height: 3px; /* Straight line for paused */
+}
+
+/* Happy mouth for completed state */
+.chatbot-icon.completed .mouth {
+  width: 12px;
+  height: 6px;
+  border-radius: 0 0 6px 6px; /* Curved bottom for smile */
+  bottom: 7px;
+}
+
+/* State-specific colors */
+.recording .chatbot-icon {
+  background-color: #F49083; /* Match recording indicator color */
+  animation: pulse 1.5s infinite; /* Add the same pulse animation */
+}
+
+.paused .chatbot-icon {
+  background-color: #F49083; /* Match paused indicator color */
+  animation: none;
+  box-shadow: 0 0 0 2px rgba(244, 144, 131, 0.3);
+}
+
+.completed .chatbot-icon {
+  background-color: #95CC8C; /* Match completed indicator color */
+}
+
+/* Add hover effect to make icon grow slightly */
+.chatbot-icon:hover {
+  transform: scale(1.15);
+}
+
+/* State-specific colors */
+.chatbot-icon.not-recording {
+  background-color: #CCCCCC; /* Match not-recording indicator color */
+}
+
+.chatbot-icon.recording {
+  background-color: #F49083; /* Match recording indicator color */
+  animation: pulse 1.5s infinite; /* Add the same pulse animation */
+}
+
+.chatbot-icon.paused {
+  background-color: #F49083; /* Match paused indicator color */
+  animation: none;
+  box-shadow: 0 0 0 2px rgba(244, 144, 131, 0.3);
+}
+
+.chatbot-icon.completed {
+  background-color: #95CC8C; /* Match completed indicator color */
 }
