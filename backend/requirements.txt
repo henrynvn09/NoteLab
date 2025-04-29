@@ -40,7 +40,7 @@ pydantic_core==2.27.2
 pymongo==4.10.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
-python-jose==3.4.0
+python-jose<=3.4.0
 python-multipart==0.0.20
 requests==2.32.3
 rsa==4.9.1
